@@ -66,7 +66,7 @@
                 </button>
             </div>
 
-            <!-- সেকশন ২: সার্চ করে ডিলিট করার ফরম (শুরুতে লুকানো থাকবে) -->
+            <!-- সেকশন ২: সার্চ করে ডিলিট করার ফরম -->
             <div id="deleteSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
                 <h2 class="text-center font-bold text-red-600 text-sm">আবেদন নম্বর সার্চ ও ডিলিট প্যানেল</h2>
                 <div class="relative">
@@ -79,7 +79,7 @@
                 </div>
             </div>
 
-            <!-- নিচের লাইভ তালিকা সেকশন (শুধুমাত্র "যুক্ত করুন" ট্যাবে দেখাবে) -->
+            <!-- নিচের লাইভ তালিকা সেকশন -->
             <div id="liveListSection">
                 <div class="flex items-center space-x-2 text-gray-700 font-bold mb-2 px-1 text-sm">
                     <svg class="w-4 h-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -110,7 +110,7 @@
         const collectionRef = db.collection('namjari_applications');
 
         let currentUserRole = ""; 
-        let allApplications = []; // সার্চিং সুবিধার জন্য লোকাল মেমোরি ব্যাকআপ
+        let allApplications = []; 
 
         // --- লগইন লজিক ---
         function handleLogin() {
@@ -133,7 +133,6 @@
             document.getElementById('usernameInput').value = "";
             document.getElementById('passwordInput').value = "";
 
-            // ডিফল্টভাবে যুক্ত করার ট্যাব ওপেন হবে
             switchTab('add');
             loadLiveDatabase();
         }
@@ -154,27 +153,24 @@
             const liveListSection = document.getElementById('liveListSection');
 
             if (tabName === 'add') {
-                // অ্যাড অপশন চালু
                 tabAdd.className = "py-2.5 text-sm font-bold rounded-lg text-white bg-green-700 transition";
                 tabDelete.className = "py-2.5 text-sm font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition";
                 addSection.classList.remove('hidden');
                 liveListSection.classList.remove('hidden');
                 deleteSection.classList.add('hidden');
             } else {
-                // ডিলিট অপশন চালু
                 tabDelete.className = "py-2.5 text-sm font-bold rounded-lg text-white bg-red-600 transition";
                 tabAdd.className = "py-2.5 text-sm font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition";
                 deleteSection.classList.remove('hidden');
                 addSection.classList.add('hidden');
                 liveListSection.classList.add('hidden');
                 
-                // সার্চ ইনপুট রিসেট করা
                 document.getElementById('searchNumberInput').value = "";
                 document.getElementById('searchResultArea').innerHTML = `<div class="text-center text-xs text-gray-400 py-2">নম্বর লিখলে রেজাল্ট এখানে দেখাবে</div>`;
             }
         }
 
-        // ১. নতুন আবেদন নম্বর যুক্ত করার ফাংশন
+        // ১. নতুন আবেদন নম্বর যুক্ত করার ফাংশন (স্বয়ংক্রিয় সার্ভার টাইমস্ট্যাম্প সহ)
         function addApplication() {
             const inputField = document.getElementById('appNumberInput');
             const appNumStr = inputField.value.trim();
@@ -187,7 +183,8 @@
             const appNumInt = parseInt(appNumStr, 10);
 
             collectionRef.add({
-                appNumber: appNumInt
+                appNumber: appNumInt,
+                entryTime: firebase.firestore.FieldValue.serverTimestamp() // অটো তারিখ ও সময় যোগ করার লজিক
             })
             .then(() => {
                 inputField.value = ""; 
@@ -201,16 +198,36 @@
 
         // ২. আবেদন নম্বর ডাটাবেজ থেকে সম্পূর্ণ ডিলিট করার ফাংশন
         function deleteApplication(docId, appNumber) {
-            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? তালিকা থেকে সম্পূর্ণ ডিলিট করা হবে।")) {
+            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? Genset তালিকা থেকে সম্পূর্ণ ডিলিট করা হবে।")) {
                 collectionRef.doc(docId).delete().then(() => {
-                    // ডিলিট সফল হলে সার্চ বক্স ও রেজাল্ট এরিয়া ক্লিয়ার করা
                     document.getElementById('searchNumberInput').value = "";
                     document.getElementById('searchResultArea').innerHTML = `<div class="text-center text-xs text-green-600 font-bold py-2">✓ সফলভাবে ডিলিট করা হয়েছে!</div>`;
                 });
             }
         }
 
-        // ৩. রিয়েল-টাইম সার্চ ফাংশন
+        // তারিখ ও সময় ফরম্যাট করার একটি সাধারণ হেল্পার ফাংশন
+        function formatFirebaseDate(timestamp) {
+            if (!timestamp) return "অজানা সময়";
+            const date = timestamp.toDate();
+            
+            // দিন-মাস-বছর ফরম্যাট
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            // ১২ ঘণ্টার ফরম্যাটে সময় (AM/PM সহ)
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // 0 হলে 12 হবে
+            const formattedHours = String(hours).padStart(2, '0');
+
+            return `${day}-${month}-${year} (সময়: ${formattedHours}:${minutes} ${ampm})`;
+        }
+
+        // ৩. রিয়েল-টাইম সার্চ ফাংশন (তারিখ ও সময় প্রদর্শন সহ)
         function searchApplication() {
             const queryStr = document.getElementById('searchNumberInput').value.trim();
             const resultArea = document.getElementById('searchResultArea');
@@ -221,8 +238,6 @@
             }
 
             const queryInt = parseInt(queryStr, 10);
-            
-            // লাইভ ডাটাবেজ ব্যাকআপ থেকে ফিল্টার করা
             const matchedApps = allApplications.filter(app => app.appNumber === queryInt);
 
             if (matchedApps.length === 0) {
@@ -230,14 +245,15 @@
                 return;
             }
 
-            // রেজাল্ট কার্ড তৈরি
             resultArea.innerHTML = "";
             matchedApps.forEach((app) => {
+                const timeString = formatFirebaseDate(app.entryTime);
+
                 const cardHtml = `
-                    <div class="flex items-center justify-between p-3 rounded-lg shadow-sm border border-red-300 bg-red-50 transition duration-150 animate-pulse">
+                    <div class="flex items-center justify-between p-3 rounded-lg shadow-sm border border-red-300 bg-red-50 transition duration-150">
                         <div>
                             <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${app.appNumber}</div>
-                            <span class="text-xs text-red-700 font-medium">ডিলিট করার জন্য প্রস্তুত</span>
+                            <div class="text-[11px] text-gray-500 font-medium">এন্ট্রি: ${timeString}</div>
                         </div>
                         <button onclick="deleteApplication('${app.id}', '${app.appNumber}')" class="text-red-600 hover:text-red-800 transition" title="ডিলিট করুন">
                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
@@ -248,13 +264,13 @@
             });
         }
 
-        // ৪. রিয়েল-টাইম ডাটাবেজ লিসেনার (লাইভ তালিকার জন্য)
+        // ৪. রিয়েল-টাইম ডাটাবেজ লিসেনার
         function loadLiveDatabase() {
             collectionRef.orderBy('appNumber', 'asc').onSnapshot((snapshot) => {
                 const listContainer = document.getElementById('applicationList');
                 listContainer.innerHTML = ""; 
                 
-                allApplications = []; // লোকাল অ্যারে ক্লিয়ার করা
+                allApplications = []; 
 
                 if (snapshot.empty) {
                     listContainer.innerHTML = `<div class="text-center text-gray-500 bg-white py-6 rounded-xl shadow-sm border border-gray-200 text-xs">বর্তমানে কোনো আবেদনের কাগজ এন্ট্রি করা নেই।</div>`;
@@ -266,9 +282,10 @@
                     const data = doc.data();
                     const docId = doc.id;
                     const appNumber = data.appNumber;
+                    const entryTime = data.entryTime;
 
-                    // লোকাল অ্যারেতে ডেটা ব্যাকআপ রাখা (সার্চ করার সুবিধার জন্য)
-                    allApplications.push({ id: docId, appNumber: appNumber });
+                    // লোকাল ব্যাকআপে টাইমস্ট্যাম্পসহ ডেটা রাখা
+                    allApplications.push({ id: docId, appNumber: appNumber, entryTime: entryTime });
 
                     const isFirst = index === 1;
                     const cardBg = isFirst ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200';
@@ -291,7 +308,6 @@
                     index++;
                 });
 
-                // যদি ডিলিট সেকশন ওপেন থাকে এবং কেউ টাইপ করে থাকে, তবে লাইভ আপডেট নিশ্চিত করা
                 if (!document.getElementById('deleteSection').classList.contains('hidden')) {
                     searchApplication();
                 }
