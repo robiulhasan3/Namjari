@@ -170,7 +170,7 @@
             }
         }
 
-        // ১. নতুন আবেদন নম্বর যুক্ত করার ফাংশন (স্বয়ংক্রিয় সার্ভার টাইমস্ট্যাম্প সহ)
+        // ১. নতুন আবেদন নম্বর যুক্ত করার ফাংশন
         function addApplication() {
             const inputField = document.getElementById('appNumberInput');
             const appNumStr = inputField.value.trim();
@@ -182,9 +182,12 @@
 
             const appNumInt = parseInt(appNumStr, 10);
 
+            // লগআউট ট্র্যাকিং সমস্যা দূর করতে ইনস্ট্যান্ট মিলি-সেকেন্ড টাইমস্ট্যাম্প ব্যবহার করা হলো
+            const currentTimestamp = Date.now(); 
+
             collectionRef.add({
                 appNumber: appNumInt,
-                entryTime: firebase.firestore.FieldValue.serverTimestamp() // অটো তারিখ ও সময় যোগ করার লজিক
+                createdAt: currentTimestamp
             })
             .then(() => {
                 inputField.value = ""; 
@@ -198,7 +201,7 @@
 
         // ২. আবেদন নম্বর ডাটাবেজ থেকে সম্পূর্ণ ডিলিট করার ফাংশন
         function deleteApplication(docId, appNumber) {
-            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? Genset তালিকা থেকে সম্পূর্ণ ডিলিট করা হবে।")) {
+            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? তালিকা থেকে সম্পূর্ণ ডিলিট করা হবে।")) {
                 collectionRef.doc(docId).delete().then(() => {
                     document.getElementById('searchNumberInput').value = "";
                     document.getElementById('searchResultArea').innerHTML = `<div class="text-center text-xs text-green-600 font-bold py-2">✓ সফলভাবে ডিলিট করা হয়েছে!</div>`;
@@ -206,28 +209,26 @@
             }
         }
 
-        // তারিখ ও সময় ফরম্যাট করার একটি সাধারণ হেল্পার ফাংশন
-        function formatFirebaseDate(timestamp) {
-            if (!timestamp) return "অজানা সময়";
-            const date = timestamp.toDate();
+        // তারিখ ও সময় সুন্দর করে দেখানোর জন্য সাধারণ ফাংশন
+        function formatDate(msTimestamp) {
+            if (!msTimestamp) return "অজানা সময়";
+            const date = new Date(msTimestamp);
             
-            // দিন-মাস-বছর ফরম্যাট
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = date.getFullYear();
             
-            // ১২ ঘণ্টার ফরম্যাটে সময় (AM/PM সহ)
             let hours = date.getHours();
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // 0 হলে 12 হবে
+            hours = hours ? hours : 12; 
             const formattedHours = String(hours).padStart(2, '0');
 
             return `${day}-${month}-${year} (সময়: ${formattedHours}:${minutes} ${ampm})`;
         }
 
-        // ৩. রিয়েল-টাইম সার্চ ফাংশন (তারিখ ও সময় প্রদর্শন সহ)
+        // ৩. রিয়েল-টাইম সার্চ ফাংশন
         function searchApplication() {
             const queryStr = document.getElementById('searchNumberInput').value.trim();
             const resultArea = document.getElementById('searchResultArea');
@@ -247,7 +248,7 @@
 
             resultArea.innerHTML = "";
             matchedApps.forEach((app) => {
-                const timeString = formatFirebaseDate(app.entryTime);
+                const timeString = formatDate(app.createdAt);
 
                 const cardHtml = `
                     <div class="flex items-center justify-between p-3 rounded-lg shadow-sm border border-red-300 bg-red-50 transition duration-150">
@@ -264,8 +265,9 @@
             });
         }
 
-        // ৪. রিয়েল-টাইম ডাটাবেজ লিসেনার
+        // ৪. রিয়েল-টাইম ডাটাবেজ লিসেনার (লগআউট ও রিফ্রেশ ফ্রেন্ডলি সাজানোর নিয়ম)
         function loadLiveDatabase() {
+            // ক্রমানুসারে নিখুঁতভাবে সাজানোর জন্য এখানে 'appNumber' অনুযায়ী করা হয়েছে
             collectionRef.orderBy('appNumber', 'asc').onSnapshot((snapshot) => {
                 const listContainer = document.getElementById('applicationList');
                 listContainer.innerHTML = ""; 
@@ -282,10 +284,9 @@
                     const data = doc.data();
                     const docId = doc.id;
                     const appNumber = data.appNumber;
-                    const entryTime = data.entryTime;
+                    const createdAt = data.createdAt;
 
-                    // লোকাল ব্যাকআপে টাইমস্ট্যাম্পসহ ডেটা রাখা
-                    allApplications.push({ id: docId, appNumber: appNumber, entryTime: entryTime });
+                    allApplications.push({ id: docId, appNumber: appNumber, createdAt: createdAt });
 
                     const isFirst = index === 1;
                     const cardBg = isFirst ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200';
