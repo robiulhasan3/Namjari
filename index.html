@@ -51,8 +51,9 @@
             <div id="addSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4 hidden">
                 <h2 class="text-sm font-bold text-green-800 border-b pb-2">অপারেটর ড্যাশবোর্ড</h2>
                 <div class="border border-green-200 bg-green-50/50 p-4 rounded-xl space-y-2">
-                    <h3 class="font-bold text-green-800 text-xs">১ম ধাপ: নতুন ফাইল রিসিভ এন্ট্রি করুন</h3>
-                    <div class="flex space-x-2">
+                    <h3 class="font-bold text-green-800 text-xs">নতুন ফাইল রিসিভ এন্ট্রি করুন</h3>
+                    <p class="text-[11px] text-gray-500">রিসিভ করার সাথে সাথে ফাইলটি সরাসরি সার্ভেয়ারে চলে যাবে।</p>
+                    <div class="flex space-x-2 pt-1">
                         <input type="number" id="receiveAppInput" placeholder="আবেদন নম্বর লিখুন" 
                             class="w-full px-3 py-2 border bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                         <button onclick="receiveApplication()" class="bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-green-800 transition shrink-0 cursor-pointer">
@@ -60,40 +61,27 @@
                         </button>
                     </div>
                 </div>
-
-                <hr class="border-gray-200">
-
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center text-xs font-bold text-gray-700">
-                        <span>২য় ধাপ: সার্ভেয়ারে পাঠানোর জন্য সার্চ করুন</span>
-                        <span id="operatorPendingCount" class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full">0</span>
-                    </div>
-
-                    <!-- 🔍 অপারেটর সার্চ ইনপুট -->
-                    <div class="relative">
-                        <input type="number" id="searchOperatorInput" oninput="filterLists()" placeholder="🔍 রিসিভড ফাইল নম্বর লিখুন..." 
-                            class="w-full px-3 py-2 border border-blue-300 bg-blue-50/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                    </div>
-
-                    <div id="operatorPendingList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                        <div class="text-center text-gray-400 py-4 text-xs">লোড হচ্ছে...</div>
-                    </div>
-                </div>
-
             </div>
 
             <!-- ২. সার্ভেয়ার ড্যাশবোর্ড -->
             <div id="surveyorSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
                 <h2 class="text-sm font-bold text-blue-900 border-b pb-2">সার্ভেয়ার ড্যাশবোর্ড</h2>
+                
                 <div class="flex justify-between items-center text-xs font-bold text-blue-900">
                     <span>আপনার কাছে পেন্ডিং ফাইলসমূহ:</span>
                     <span id="surveyorPendingCount" class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">0</span>
                 </div>
 
+                <!-- 📅 ফিল্টার বাটন সমূহ -->
+                <div class="flex space-x-2 text-xs pt-1">
+                    <button id="btnSurAll" onclick="setSurDateFilter('all')" class="flex-1 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-bold transition">সকল ফাইল</button>
+                    <button id="btnSurToday" onclick="setSurDateFilter('today')" class="flex-1 py-1.5 rounded-lg border border-blue-600 bg-white text-blue-600 font-bold hover:bg-blue-50 transition">📅 আজকের ফাইল</button>
+                </div>
+
                 <!-- 🔍 সার্ভেয়ার সার্চ ইনপুট -->
                 <div class="relative">
                     <input type="number" id="searchSurveyorInput" oninput="filterLists()" placeholder="🔍 পেন্ডিং ফাইল নম্বর দিয়ে সার্চ করুন..." 
-                        class="w-full px-3 py-2 border border-amber-300 bg-amber-50/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                        class="w-full px-3 py-2 border border-blue-300 bg-blue-50/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                 </div>
 
                 <div id="surveyorPendingList" class="space-y-2 max-h-80 overflow-y-auto pr-1">
@@ -101,13 +89,45 @@
                 </div>
             </div>
 
-            <!-- ৩. এডমিন ট্র্যাকিং ও মনিটরিং ড্যাশবোর্ড -->
+            <!-- ৩. মিউটেশন সহকারী ড্যাশবোর্ড -->
+            <div id="assistantSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
+                <h2 class="text-sm font-bold text-teal-900 border-b pb-2">মিউটেশন সহকারী ড্যাশবোর্ড</h2>
+                
+                <div class="flex justify-between items-center text-xs font-bold text-teal-900">
+                    <span>আপনার কাছে পেন্ডিং ফাইলসমূহ:</span>
+                    <span id="assistantPendingCount" class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full">0</span>
+                </div>
+
+                <!-- 📅 ফিল্টার বাটন সমূহ -->
+                <div class="flex space-x-2 text-xs pt-1">
+                    <button id="btnAstAll" onclick="setAstDateFilter('all')" class="flex-1 py-1.5 rounded-lg border border-teal-700 bg-teal-700 text-white font-bold transition">সকল ফাইল</button>
+                    <button id="btnAstToday" onclick="setAstDateFilter('today')" class="flex-1 py-1.5 rounded-lg border border-teal-700 bg-white text-teal-700 font-bold hover:bg-teal-50 transition">📅 আজকের ফাইল</button>
+                </div>
+
+                <!-- 🔍 মিউটেশন সহকারী সার্চ ইনপুট -->
+                <div class="relative">
+                    <input type="number" id="searchAssistantInput" oninput="filterLists()" placeholder="🔍 পেন্ডিং ফাইল নম্বর দিয়ে সার্চ করুন..." 
+                        class="w-full px-3 py-2 border border-teal-300 bg-teal-50/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                </div>
+
+                <div id="assistantPendingList" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                    <div class="text-center text-gray-400 py-4 text-xs">লোড হচ্ছে...</div>
+                </div>
+            </div>
+
+            <!-- ৪. এডমিন ট্র্যাকিং ও মনিটরিং ড্যাশবোর্ড -->
             <div id="reportSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4 hidden">
                 <h2 class="text-sm font-bold text-red-700 border-b pb-2">এডমিন কন্ট্রোল প্যানেল</h2>
                 <div class="border border-green-300 bg-green-50/60 p-4 rounded-xl space-y-3">
                     <div class="flex justify-between items-center text-xs font-bold text-green-800">
                         <span>অনুমোদনের জন্য আপনার কাছে পেন্ডিং:</span>
                         <span id="adminPendingCount" class="bg-green-600 text-white px-2 py-0.5 rounded-full">0</span>
+                    </div>
+
+                    <!-- 📅 ফিল্টার বাটন সমূহ -->
+                    <div class="flex space-x-2 text-xs">
+                        <button id="btnAdmAll" onclick="setAdmDateFilter('all')" class="flex-1 py-1.5 rounded-lg border border-green-700 bg-green-700 text-white font-bold transition">সকল ফাইল</button>
+                        <button id="btnAdmToday" onclick="setAdmDateFilter('today')" class="flex-1 py-1.5 rounded-lg border border-green-700 bg-white text-green-700 font-bold hover:bg-green-100 transition">📅 আজকের ফাইল</button>
                     </div>
 
                     <!-- 🔍 এডমিন পেন্ডিং সার্চ ইনপুট -->
@@ -125,13 +145,13 @@
 
                 <h3 class="font-bold text-purple-700 text-xs text-center">সর্বমোট ফাইল লাইভ স্ট্যাটাস</h3>
                 <div class="grid grid-cols-3 gap-1 text-center text-[10px]">
-                    <div class="bg-gray-100 border p-2 rounded-lg">
-                        <span class="block text-gray-500">অপারেটরে</span>
-                        <b id="countReceived" class="text-gray-700 text-base">0</b> টি
-                    </div>
-                    <div class="bg-amber-50 border border-amber-200 p-2 rounded-lg">
+                    <div class="bg-blue-50 border border-blue-200 p-2 rounded-lg">
                         <span class="block text-gray-500">সার্ভেয়ারে</span>
-                        <b id="countSurveyor" class="text-amber-600 text-base">0</b> টি
+                        <b id="countSurveyor" class="text-blue-600 text-base">0</b> টি
+                    </div>
+                    <div class="bg-teal-50 border border-teal-200 p-2 rounded-lg">
+                        <span class="block text-gray-500">মিউটেশন সহকারীতে</span>
+                        <b id="countAssistant" class="text-teal-600 text-base">0</b> টি
                     </div>
                     <div class="bg-green-50 border border-green-200 p-2 rounded-lg">
                         <span class="block text-gray-500">এডমিনে</span>
@@ -139,16 +159,22 @@
                     </div>
                 </div>
 
-                <!-- 🎯 এডমিন রোল ফিল্টার ড্রপডাউন এবং সার্চ ইনপুট -->
+                <!-- 🎯 এডমিন রোল ও নির্দিষ্ট তারিখ ফিল্টার -->
                 <div class="space-y-2 pt-2">
-                    <div>
-                        <label class="block text-[11px] font-bold text-purple-800 mb-1">প্যানেল অনুসারে পেন্ডিং ফাইল দেখুন:</label>
-                        <select id="adminRoleFilter" onchange="filterLists()" class="w-full px-3 py-2 border border-purple-300 bg-purple-50/50 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
-                            <option value="all">🔍 সকল ফাইল (সবগুলো)</option>
-                            <option value="dataentry">👤 অপারেটর প্যানেলে পেন্ডিং</option>
-                            <option value="surveyor">📐 সার্ভেয়ার প্যানেলে পেন্ডিং</option>
-                            <option value="admin">⭐ এডমিন প্যানেলে পেন্ডিং</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-purple-800 mb-0.5">প্যানেল অনুযায়ী:</label>
+                            <select id="adminRoleFilter" onchange="filterLists()" class="w-full px-2 py-1.5 border border-purple-300 bg-purple-50/50 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+                                <option value="all">🔍 সকল ফাইল</option>
+                                <option value="surveyor">📐 সার্ভেয়ার</option>
+                                <option value="assistant">📝 মিউটেশন সহকারী</option>
+                                <option value="admin">⭐ এডমিন</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-purple-800 mb-0.5">তারিখ নির্দিষ্ট করুন:</label>
+                            <input type="date" id="adminDateSearch" onchange="filterLists()" class="w-full px-2 py-1 border border-purple-300 bg-white text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+                        </div>
                     </div>
 
                     <div class="relative">
@@ -185,10 +211,15 @@
         const collectionRef = db.collection('namjari_applications');
 
         let currentUserRole = ""; 
-        let rawOperatorList = []; 
         let rawSurveyorList = [];
+        let rawAssistantList = [];
         let rawAdminList = [];
         let rawGlobalList = [];
+
+        // ফিল্টার স্টেট
+        let surDateFilter = "all";
+        let astDateFilter = "all";
+        let admDateFilter = "all";
 
         window.onload = function() {
             const savedRole = localStorage.getItem('namjari_user_role');
@@ -208,6 +239,8 @@
                 currentUserRole = "dataentry";
             } else if (uid === "surveyor" && pass === "sur123") {
                 currentUserRole = "surveyor";
+            } else if (uid === "assistant" && pass === "ast123") {
+                currentUserRole = "assistant";
             } else {
                 alert("ভুল আইডি অথবা পাসওয়ার্ড!");
                 return;
@@ -223,6 +256,7 @@
             
             document.getElementById('addSection').classList.add('hidden');
             document.getElementById('surveyorSection').classList.add('hidden');
+            document.getElementById('assistantSection').classList.add('hidden');
             document.getElementById('reportSection').classList.add('hidden');
 
             if (currentUserRole === "dataentry") {
@@ -231,6 +265,9 @@
             } else if (currentUserRole === "surveyor") {
                 document.getElementById('userRoleBadge').innerText = "সার্ভেয়ার";
                 document.getElementById('surveyorSection').classList.remove('hidden');
+            } else if (currentUserRole === "assistant") {
+                document.getElementById('userRoleBadge').innerText = "মিউটেশন সহকারী";
+                document.getElementById('assistantSection').classList.remove('hidden');
             } else if (currentUserRole === "admin") {
                 document.getElementById('userRoleBadge').innerText = "এডমিন";
                 document.getElementById('reportSection').classList.remove('hidden');
@@ -249,6 +286,67 @@
             document.getElementById('loginScreen').classList.remove('hidden');
         }
 
+        function setSurDateFilter(type) {
+            surDateFilter = type;
+            const btnAll = document.getElementById('btnSurAll');
+            const btnToday = document.getElementById('btnSurToday');
+            if (type === 'all') {
+                btnAll.className = "flex-1 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-bold transition";
+                btnToday.className = "flex-1 py-1.5 rounded-lg border border-blue-600 bg-white text-blue-600 font-bold hover:bg-blue-50 transition";
+            } else {
+                btnToday.className = "flex-1 py-1.5 rounded-lg border border-blue-600 bg-blue-600 text-white font-bold transition";
+                btnAll.className = "flex-1 py-1.5 rounded-lg border border-blue-600 bg-white text-blue-600 font-bold hover:bg-blue-50 transition";
+            }
+            filterLists();
+        }
+
+        function setAstDateFilter(type) {
+            astDateFilter = type;
+            const btnAll = document.getElementById('btnAstAll');
+            const btnToday = document.getElementById('btnAstToday');
+            if (type === 'all') {
+                btnAll.className = "flex-1 py-1.5 rounded-lg border border-teal-700 bg-teal-700 text-white font-bold transition";
+                btnToday.className = "flex-1 py-1.5 rounded-lg border border-teal-700 bg-white text-teal-700 font-bold hover:bg-teal-50 transition";
+            } else {
+                btnToday.className = "flex-1 py-1.5 rounded-lg border border-teal-700 bg-teal-700 text-white font-bold transition";
+                btnAll.className = "flex-1 py-1.5 rounded-lg border border-teal-700 bg-white text-teal-700 font-bold hover:bg-teal-50 transition";
+            }
+            filterLists();
+        }
+
+        function setAdmDateFilter(type) {
+            admDateFilter = type;
+            const btnAll = document.getElementById('btnAdmAll');
+            const btnToday = document.getElementById('btnAdmToday');
+            if (type === 'all') {
+                btnAll.className = "flex-1 py-1.5 rounded-lg border border-green-700 bg-green-700 text-white font-bold transition";
+                btnToday.className = "flex-1 py-1.5 rounded-lg border border-green-700 bg-white text-green-700 font-bold hover:bg-green-100 transition";
+            } else {
+                btnToday.className = "flex-1 py-1.5 rounded-lg border border-green-700 bg-green-700 text-white font-bold transition";
+                btnAll.className = "flex-1 py-1.5 rounded-lg border border-green-700 bg-white text-green-700 font-bold hover:bg-green-100 transition";
+            }
+            filterLists();
+        }
+
+        function isToday(msTimestamp) {
+            if (!msTimestamp) return false;
+            const today = new Date();
+            const date = new Date(msTimestamp);
+            return date.getDate() === today.getDate() &&
+                   date.getMonth() === today.getMonth() &&
+                   date.getFullYear() === today.getFullYear();
+        }
+
+        function isSameDate(msTimestamp, dateString) {
+            if (!msTimestamp || !dateString) return true;
+            const target = new Date(dateString);
+            const date = new Date(msTimestamp);
+            return date.getDate() === target.getDate() &&
+                   date.getMonth() === target.getMonth() &&
+                   date.getFullYear() === target.getFullYear();
+        }
+
+        // ১. ডাটা রিসিভ
         function receiveApplication() {
             const input = document.getElementById('receiveAppInput');
             const appNumStr = input.value.trim();
@@ -269,30 +367,33 @@
 
                 collectionRef.add({
                     appNumber: appNum,
-                    status: "received_by_operator",
+                    status: "pending_surveyor",
                     receivedTime: now,
-                    sentToSurveyorTime: null,
+                    sentToSurveyorTime: now,
+                    sentToAssistantTime: null,
                     sentToAdminTime: null
                 }).then(() => {
                     input.value = "";
-                    alert(`আবেদন নং: ${appNum} সফলভাবে রিসিভ করা হয়েছে!`);
                 }).catch(err => {
                     alert("ডাটা সেভ করতে সমস্যা হচ্ছে: " + err.message);
                 });
             });
         }
 
-        function sendToSurveyorFromList(docId, appNumber) {
-            const now = Date.now();
-            collectionRef.doc(docId).update({
-                status: "pending_surveyor",
-                sentToSurveyorTime: now
-            }).then(() => {
-                alert(`আবেদন নং: ${appNumber} সফলভাবে সার্ভেয়ারের কাছে পাঠানো হলো!`);
-                document.getElementById('searchOperatorInput').value = ""; 
-            });
+        // ২. মিউটেশন সহকারীর কাছে ফরোয়ার্ড
+        function forwardToAssistant(docId, appNumber) {
+            if(confirm(`আবেদন নং: ${appNumber} মিউটেশন সহকারীর কাছে পাঠাতে চান?`)) {
+                const now = Date.now();
+                collectionRef.doc(docId).update({
+                    status: "pending_assistant",
+                    sentToAssistantTime: now
+                }).then(() => {
+                    document.getElementById('searchSurveyorInput').value = "";
+                });
+            }
         }
 
+        // ৩. এডমিনের কাছে ফরোয়ার্ড
         function forwardToAdmin(docId, appNumber) {
             if(confirm(`আবেদন নং: ${appNumber} এডমিনের অনুমোদনের জন্য পাঠাতে চান?`)) {
                 const now = Date.now();
@@ -300,16 +401,15 @@
                     status: "sent_to_admin",
                     sentToAdminTime: now
                 }).then(() => {
-                    alert(`আবেদন নং: ${appNumber} এডমিনের ড্যাশবোর্ডে পাঠানো হলো!`);
-                    document.getElementById('searchSurveyorInput').value = "";
+                    document.getElementById('searchAssistantInput').value = "";
                 });
             }
         }
 
+        // ৪. এডমিন অনুমোদন ও ডিলিট
         function approveByAdmin(docId, appNumber) {
             if(confirm(`আবেদন নং: ${appNumber} অনুমোদন করতে চান? অনুমোদিত হলে এই নম্বরটি সিস্টেম থেকে স্থায়ীভাবে ডিলিট হয়ে যাবে।`)) {
                 collectionRef.doc(docId).delete().then(() => {
-                    alert(`আবেদন নং: ${appNumber} চূড়ান্তভাবে অনুমোদিত এবং সিস্টেম থেকে ডিলিট করা হয়েছে!`);
                     document.getElementById('searchAdminInput').value = "";
                 }).catch(err => {
                     alert("ডিলিট করতে সমস্যা হয়েছে: " + err.message);
@@ -342,39 +442,16 @@
         }
 
         function filterLists() {
-            // ১. অপারেটর ফিল্টারিং
-            if (currentUserRole === 'dataentry') {
-                const opQuery = document.getElementById('searchOperatorInput').value.trim();
-                const opListArea = document.getElementById('operatorPendingList');
-                opListArea.innerHTML = "";
-                const filteredOp = rawOperatorList.filter(i => i.appNumber.toString().includes(opQuery));
-                
-                if (filteredOp.length === 0) {
-                    opListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং রিসিভড ফাইল পাওয়া যায়নি!</div>`;
-                } else {
-                    filteredOp.forEach(data => {
-                        opListArea.insertAdjacentHTML('beforeend', `
-                            <div class="p-3 border border-blue-200 bg-blue-50/40 rounded-xl flex justify-between items-center shadow-sm">
-                                <div>
-                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                    <div class="text-[10px] text-gray-500">রিসিভড: ${formatDate(data.receivedTime)}</div>
-                                    <div class="text-[10px] font-bold text-amber-700 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.receivedTime)}</div>
-                                </div>
-                                <button onclick="sendToSurveyorFromList('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition cursor-pointer">
-                                    ➔ সার্ভেয়ারে পাঠান
-                                </button>
-                            </div>
-                        `);
-                    });
-                }
-            }
-
-            // ২. সার্ভেয়ার ফিল্টারিং
+            // ১. সার্ভেয়ার ফিল্টারিং
             if (currentUserRole === 'surveyor') {
                 const surQuery = document.getElementById('searchSurveyorInput').value.trim();
                 const surListArea = document.getElementById('surveyorPendingList');
                 surListArea.innerHTML = "";
-                const filteredSur = rawSurveyorList.filter(i => i.appNumber.toString().includes(surQuery));
+                
+                let filteredSur = rawSurveyorList.filter(i => i.appNumber.toString().includes(surQuery));
+                if (surDateFilter === "today") {
+                    filteredSur = filteredSur.filter(i => isToday(i.sentToSurveyorTime));
+                }
 
                 if (filteredSur.length === 0) {
                     surListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং ফাইল পাওয়া যায়নি!</div>`;
@@ -384,10 +461,41 @@
                             <div class="p-3 border border-blue-200 bg-blue-50 rounded-xl flex justify-between items-center shadow-sm">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                    <div class="text-[10px] text-gray-500">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
-                                    <div class="text-[10px] font-bold text-red-600 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.sentToSurveyorTime)}</div>
+                                    <div class="text-[10px] text-gray-500">রিসিভড সময়: ${formatDate(data.receivedTime)}</div>
+                                    <div class="text-[10px] font-bold text-blue-700 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.sentToSurveyorTime)}</div>
                                 </div>
-                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer">
+                                <button onclick="forwardToAssistant('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer">
+                                    ➔ মিউটেশন সহকারী
+                                </button>
+                            </div>
+                        `);
+                    });
+                }
+            }
+
+            // ২. মিউটেশন সহকারী ফিল্টারিং
+            if (currentUserRole === 'assistant') {
+                const astQuery = document.getElementById('searchAssistantInput').value.trim();
+                const astListArea = document.getElementById('assistantPendingList');
+                astListArea.innerHTML = "";
+                
+                let filteredAst = rawAssistantList.filter(i => i.appNumber.toString().includes(astQuery));
+                if (astDateFilter === "today") {
+                    filteredAst = filteredAst.filter(i => isToday(i.sentToAssistantTime));
+                }
+
+                if (filteredAst.length === 0) {
+                    astListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং ফাইল পাওয়া যায়নি!</div>`;
+                } else {
+                    filteredAst.forEach(data => {
+                        astListArea.insertAdjacentHTML('beforeend', `
+                            <div class="p-3 border border-teal-200 bg-teal-50 rounded-xl flex justify-between items-center shadow-sm">
+                                <div>
+                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
+                                    <div class="text-[10px] text-gray-500">সার্ভেয়ার পাঠিয়েছে: ${formatDate(data.sentToAssistantTime)}</div>
+                                    <div class="text-[10px] font-bold text-teal-700 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.sentToAssistantTime)}</div>
+                                </div>
+                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-teal-800 transition cursor-pointer">
                                     ➔ এডমিনকে পাঠান
                                 </button>
                             </div>
@@ -401,7 +509,11 @@
                 const admQuery = document.getElementById('searchAdminInput').value.trim();
                 const admListArea = document.getElementById('adminPendingList');
                 admListArea.innerHTML = "";
-                const filteredAdm = rawAdminList.filter(i => i.appNumber.toString().includes(admQuery));
+                
+                let filteredAdm = rawAdminList.filter(i => i.appNumber.toString().includes(admQuery));
+                if (admDateFilter === "today") {
+                    filteredAdm = filteredAdm.filter(i => isToday(i.sentToAdminTime));
+                }
 
                 if (filteredAdm.length === 0) {
                     admListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং পেন্ডিং ফাইল পাওয়া যায়নি!</div>`;
@@ -411,7 +523,7 @@
                             <div class="p-3 border border-green-300 bg-white rounded-xl flex justify-between items-center shadow-sm">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                    <div class="text-[10px] text-gray-500">সার্ভেয়ার পাঠিয়েছে: ${formatDate(data.sentToAdminTime)}</div>
+                                    <div class="text-[10px] text-gray-500">সহকারী পাঠিয়েছে: ${formatDate(data.sentToAdminTime)}</div>
                                     <div class="text-[10px] font-bold text-green-700 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.sentToAdminTime)}</div>
                                 </div>
                                 <button onclick="approveByAdmin('${data.id}', '${data.appNumber}')" class="bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-800 transition cursor-pointer">
@@ -424,21 +536,23 @@
 
                 // এডমিন গ্লোবাল ট্র্যাকিং
                 const roleFilterValue = document.getElementById('adminRoleFilter').value;
+                const searchDateValue = document.getElementById('adminDateSearch').value;
                 const globQuery = document.getElementById('searchGlobalInput').value.trim();
                 const globListArea = document.getElementById('trackingDetailList');
                 globListArea.innerHTML = "";
 
                 let filteredGlob = rawGlobalList.filter(i => {
                     const matchesQuery = i.appNumber.toString().includes(globQuery);
+                    const matchesDate = searchDateValue ? isSameDate(i.receivedTime, searchDateValue) : true;
                     
-                    if (roleFilterValue === 'dataentry') {
-                        return matchesQuery && i.status === 'received_by_operator';
-                    } else if (roleFilterValue === 'surveyor') {
-                        return matchesQuery && i.status === 'pending_surveyor';
+                    if (roleFilterValue === 'surveyor') {
+                        return matchesQuery && matchesDate && i.status === 'pending_surveyor';
+                    } else if (roleFilterValue === 'assistant') {
+                        return matchesQuery && matchesDate && i.status === 'pending_assistant';
                     } else if (roleFilterValue === 'admin') {
-                        return matchesQuery && i.status === 'sent_to_admin';
+                        return matchesQuery && matchesDate && i.status === 'sent_to_admin';
                     }
-                    return matchesQuery;
+                    return matchesQuery && matchesDate;
                 });
 
                 if (filteredGlob.length === 0) {
@@ -448,12 +562,12 @@
                         let statusBadge = "";
                         let cardBg = "";
 
-                        if (data.status === 'received_by_operator') {
-                            statusBadge = `<span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-[10px]">অপারেটরে পেন্ডিং</span>`;
-                            cardBg = "bg-white border-gray-300";
-                        } else if (data.status === 'pending_surveyor') {
-                            statusBadge = `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px]">সার্ভেয়ারে পেন্ডিং</span>`;
-                            cardBg = "bg-amber-50 border-amber-300";
+                        if (data.status === 'pending_surveyor') {
+                            statusBadge = `<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-[10px]">সার্ভেয়ারে পেন্ডিং</span>`;
+                            cardBg = "bg-blue-50 border-blue-300";
+                        } else if (data.status === 'pending_assistant') {
+                            statusBadge = `<span class="bg-teal-100 text-teal-800 px-2 py-0.5 rounded text-[10px]">মিউটেশন সহকারীতে পেন্ডিং</span>`;
+                            cardBg = "bg-teal-50 border-teal-300";
                         } else {
                             statusBadge = `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px]">এডমিনে পেন্ডিং</span>`;
                             cardBg = "bg-green-50 border-green-300";
@@ -466,13 +580,13 @@
                                     ${statusBadge}
                                 </div>
                                 <div class="text-gray-600 text-[11px] space-y-0.5 pt-1">
-                                    <div>• ১. ফাইল রিসিভ: ${formatDate(data.receivedTime)}</div>
-                                    ${data.sentToSurveyorTime ? `<div>• ২. সার্ভেয়ারে প্রেরিত: ${formatDate(data.sentToSurveyorTime)}</div>` : ''}
+                                    <div>• ১. রিসিভড ও সার্ভেয়ারে প্রাপ্তি: ${formatDate(data.receivedTime)}</div>
+                                    ${data.sentToAssistantTime ? `<div>• ২. মিউটেশন সহকারীতে প্রেরিত: ${formatDate(data.sentToAssistantTime)}</div>` : ''}
                                     ${data.sentToAdminTime ? `<div>• ৩. এডমিনে পৌঁছানোর সময়: ${formatDate(data.sentToAdminTime)}</div>` : ''}
                                     
                                     <div class="font-bold text-gray-700 pt-1 border-t border-gray-200 mt-1">
-                                        ${data.status === 'pending_surveyor' ? `<span class="text-red-600">⏱ সার্ভেয়ার ঝুলিয়ে রেখেছে: ${getDuration(data.sentToSurveyorTime)}</span>` : ''}
-                                        ${data.status === 'received_by_operator' ? `<span class="text-gray-500">⏱ অপারেটরের কাছে রয়েছে: ${getDuration(data.receivedTime)}</span>` : ''}
+                                        ${data.status === 'pending_surveyor' ? `<span class="text-blue-700">⏱ সার্ভেয়ারের কাছে রয়েছে: ${getDuration(data.sentToSurveyorTime)}</span>` : ''}
+                                        ${data.status === 'pending_assistant' ? `<span class="text-teal-700">⏱ মিউটেশন সহকারীর কাছে রয়েছে: ${getDuration(data.sentToAssistantTime)}</span>` : ''}
                                         ${data.status === 'sent_to_admin' ? `<span class="text-green-700">⏱ এডমিনের কাছে রয়েছে: ${getDuration(data.sentToAdminTime)}</span>` : ''}
                                     </div>
                                 </div>
@@ -485,8 +599,8 @@
 
         function loadLiveDatabase() {
             collectionRef.onSnapshot((snapshot) => {
-                rawOperatorList = [];
                 rawSurveyorList = [];
+                rawAssistantList = [];
                 rawAdminList = [];
                 rawGlobalList = [];
 
@@ -501,10 +615,10 @@
                 docs.forEach((data) => {
                     rawGlobalList.push(data);
 
-                    if (data.status === 'received_by_operator') {
-                        rawOperatorList.push(data);
-                    } else if (data.status === 'pending_surveyor') {
+                    if (data.status === 'pending_surveyor') {
                         rawSurveyorList.push(data);
+                    } else if (data.status === 'pending_assistant') {
+                        rawAssistantList.push(data);
                     } else if (data.status === 'sent_to_admin') {
                         rawAdminList.push(data);
                     }
@@ -512,12 +626,12 @@
 
                 filterLists();
 
-                if(document.getElementById('operatorPendingCount')) document.getElementById('operatorPendingCount').innerText = rawOperatorList.length;
                 if(document.getElementById('surveyorPendingCount')) document.getElementById('surveyorPendingCount').innerText = rawSurveyorList.length;
+                if(document.getElementById('assistantPendingCount')) document.getElementById('assistantPendingCount').innerText = rawAssistantList.length;
                 if(document.getElementById('adminPendingCount')) document.getElementById('adminPendingCount').innerText = rawAdminList.length;
 
-                if(document.getElementById('countReceived')) document.getElementById('countReceived').innerText = rawOperatorList.length;
                 if(document.getElementById('countSurveyor')) document.getElementById('countSurveyor').innerText = rawSurveyorList.length;
+                if(document.getElementById('countAssistant')) document.getElementById('countAssistant').innerText = rawAssistantList.length;
                 if(document.getElementById('countAdmin')) document.getElementById('countAdmin').innerText = rawAdminList.length;
             });
         }
