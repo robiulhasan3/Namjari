@@ -442,7 +442,7 @@
         }
 
         function filterLists() {
-            // ১. সার্ভেয়ার ফিল্টারিং
+            // ১. সার্ভেয়ার ফিল্টারিং ও সর্টিং
             if (currentUserRole === 'surveyor') {
                 const surQuery = document.getElementById('searchSurveyorInput').value.trim();
                 const surListArea = document.getElementById('surveyorPendingList');
@@ -452,6 +452,9 @@
                 if (surDateFilter === "today") {
                     filteredSur = filteredSur.filter(i => isToday(i.sentToSurveyorTime));
                 }
+
+                // 🔢 আবেদন নম্বর অনুযায়ী সর্টিং (Ascending Order)
+                filteredSur.sort((a, b) => a.appNumber - b.appNumber);
 
                 if (filteredSur.length === 0) {
                     surListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং ফাইল পাওয়া যায়নি!</div>`;
@@ -473,7 +476,7 @@
                 }
             }
 
-            // ২. মিউটেশন সহকারী ফিল্টারিং
+            // ২. মিউটেশন সহকারী ফিল্টারিং ও সর্টিং
             if (currentUserRole === 'assistant') {
                 const astQuery = document.getElementById('searchAssistantInput').value.trim();
                 const astListArea = document.getElementById('assistantPendingList');
@@ -483,6 +486,9 @@
                 if (astDateFilter === "today") {
                     filteredAst = filteredAst.filter(i => isToday(i.sentToAssistantTime));
                 }
+
+                // 🔢 আবেদন নম্বর অনুযায়ী সর্টিং (Ascending Order)
+                filteredAst.sort((a, b) => a.appNumber - b.appNumber);
 
                 if (filteredAst.length === 0) {
                     astListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং ফাইল পাওয়া যায়নি!</div>`;
@@ -504,7 +510,7 @@
                 }
             }
 
-            // ৩. এডমিন ফিল্টারিং
+            // ৩. এডমিন ফিল্টারিং ও সর্টিং
             if (currentUserRole === 'admin') {
                 const admQuery = document.getElementById('searchAdminInput').value.trim();
                 const admListArea = document.getElementById('adminPendingList');
@@ -514,6 +520,9 @@
                 if (admDateFilter === "today") {
                     filteredAdm = filteredAdm.filter(i => isToday(i.sentToAdminTime));
                 }
+
+                // 🔢 আবেদন নম্বর অনুযায়ী সর্টিং (Ascending Order)
+                filteredAdm.sort((a, b) => a.appNumber - b.appNumber);
 
                 if (filteredAdm.length === 0) {
                     admListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং পেন্ডিং ফাইল পাওয়া যায়নি!</div>`;
@@ -534,7 +543,7 @@
                     });
                 }
 
-                // এডমিন গ্লোবাল ট্র্যাকিং
+                // এডমিন গ্লোবাল ট্র্যাকিং ফিল্টারিং ও সর্টিং
                 const roleFilterValue = document.getElementById('adminRoleFilter').value;
                 const searchDateValue = document.getElementById('adminDateSearch').value;
                 const globQuery = document.getElementById('searchGlobalInput').value.trim();
@@ -554,6 +563,9 @@
                     }
                     return matchesQuery && matchesDate;
                 });
+
+                // 🔢 আবেদন নম্বর অনুযায়ী সর্টিং (Ascending Order)
+                filteredGlob.sort((a, b) => a.appNumber - b.appNumber);
 
                 if (filteredGlob.length === 0) {
                     globListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো রেকর্ড পাওয়া যায়নি!</div>`;
@@ -610,7 +622,6 @@
                     d.id = doc.id;
                     docs.push(d);
                 });
-                docs.sort((a, b) => (b.receivedTime || 0) - (a.receivedTime || 0));
 
                 docs.forEach((data) => {
                     rawGlobalList.push(data);
