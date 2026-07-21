@@ -176,7 +176,7 @@
 
         let currentUserRole = ""; 
         let allApplications = []; 
-        let rawReceivedList = []; // অপারেটরের রিসিভড ফাইল ফিল্টারিংয়ের জন্য
+        let rawReceivedList = []; 
 
         function handleLogin() {
             const uid = document.getElementById('usernameInput').value.trim().toLowerCase();
@@ -257,6 +257,9 @@
                 }).then(() => {
                     input.value = "";
                     alert(`আবেদন নং: ${appNum} সফলভাবে রিসিভ করা হয়েছে!`);
+                }).catch(err => {
+                    console.error("Error adding document: ", err);
+                    alert("ডাটা সেভ করতে সমস্যা হয়েছে।");
                 });
             });
         }
@@ -269,7 +272,7 @@
                 sentToSurveyorTime: now
             }).then(() => {
                 alert(`আবেদন নং: ${appNumber} সফলভাবে সার্ভেয়ারের কাছে পাঠানো হলো!`);
-                document.getElementById('searchOperatorInput').value = ""; // সার্চ ইনপুট খালি করা
+                document.getElementById('searchOperatorInput').value = ""; 
             });
         }
 
@@ -317,7 +320,7 @@
                             <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
                             <div class="text-[10px] text-gray-500">রিসিভড: ${formatDate(data.receivedTime)}</div>
                         </div>
-                        <button onclick="sendToSurveyorFromList('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition">
+                        <button onclick="sendToSurveyorFromList('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition cursor-pointer">
                             ➔ সার্ভেয়ারে পাঠান
                         </button>
                     </div>
@@ -347,7 +350,7 @@
 
         // লাইভ ডাটাবেজ আপডেট
         function loadLiveDatabase() {
-            collectionRef.orderBy('receivedTime', 'desc').onSnapshot((snapshot) => {
+            collectionRef.onSnapshot((snapshot) => {
                 allApplications = [];
                 rawReceivedList = [];
                 
@@ -363,25 +366,31 @@
                 adminListArea.innerHTML = "";
                 trackingListArea.innerHTML = "";
 
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    data.id = doc.id;
+                // ডাটা রিসিভ করার সময় অনুযায়ী সর্ট করা JavaScript দিয়ে
+                let docs = [];
+                snapshot.forEach(doc => {
+                    let d = doc.data();
+                    d.id = doc.id;
+                    docs.push(d);
+                });
+                docs.sort((a, b) => (b.receivedTime || 0) - (a.receivedTime || 0));
+
+                docs.forEach((data) => {
                     allApplications.push(data);
 
                     if (data.status === 'received_by_operator') {
                         countReceived++;
-                        rawReceivedList.push(data); // সার্চের জন্য আলাদা অ্যারেতে সেভ করা
+                        rawReceivedList.push(data);
                     } else if (data.status === 'pending_surveyor') {
                         countSurveyor++;
 
-                        // সার্ভেয়ার ড্যাশবোর্ডের পেন্ডিং লিস্ট
                         const surHtml = `
                             <div class="p-3 border border-blue-200 bg-blue-50 rounded-xl flex justify-between items-center shadow-sm">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
                                     <div class="text-[10px] text-gray-500">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
                                 </div>
-                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition">
+                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer">
                                     ➔ এডমিনকে পাঠান
                                 </button>
                             </div>
@@ -391,14 +400,13 @@
                     } else if (data.status === 'sent_to_admin') {
                         countAdmin++;
 
-                        // এডমিনের নিজের পেন্ডিং লিস্ট
                         const adminHtml = `
                             <div class="p-3 border border-green-300 bg-white rounded-xl flex justify-between items-center shadow-sm">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
                                     <div class="text-[10px] text-gray-500">সার্ভেয়ার পাঠিয়েছে: ${formatDate(data.sentToAdminTime)}</div>
                                 </div>
-                                <button onclick="approveByAdmin('${data.id}', '${data.appNumber}')" class="bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-800 transition">
+                                <button onclick="approveByAdmin('${data.id}', '${data.appNumber}')" class="bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-800 transition cursor-pointer">
                                     ✓ অনুমোদন দিন
                                 </button>
                             </div>
@@ -406,7 +414,6 @@
                         adminListArea.insertAdjacentHTML('beforeend', adminHtml);
                     }
 
-                    // এডমিন ট্র্যাকিং বিস্তারিত
                     if(data.status !== 'approved') {
                         let statusBadge = "";
                         let cardBg = "";
@@ -445,10 +452,8 @@
                     }
                 });
 
-                // অপারেটরের লিস্ট ফিল্টার করে দেখানো
                 filterOperatorPendingList();
 
-                // সংখ্যা আপডেট
                 document.getElementById('operatorPendingCount').innerText = countReceived;
                 document.getElementById('surveyorPendingCount').innerText = countSurveyor;
                 document.getElementById('adminPendingCount').innerText = countAdmin;
@@ -463,6 +468,8 @@
                 if (countAdmin === 0) {
                     adminListArea.innerHTML = `<div class="text-center text-xs text-gray-400 py-3">আপনার কাছে কোনো পেন্ডিং ফাইল নেই।</div>`;
                 }
+            }, (error) => {
+                console.error("Error listening to collection: ", error);
             });
         }
     </script>
