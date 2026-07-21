@@ -105,7 +105,6 @@
             appId: "1:1029384756:web:abc123def456"
         };
 
-        // ফায়ারবেস ইনিশিয়ালাইজেশন
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -115,7 +114,6 @@
         let currentUserRole = ""; 
         let allApplications = []; 
 
-        // --- লগইন লজিক ---
         function handleLogin() {
             const uid = document.getElementById('usernameInput').value.trim();
             const pass = document.getElementById('passwordInput').value.trim();
@@ -140,14 +138,12 @@
             loadLiveDatabase();
         }
 
-        // --- লগআউট লজিক ---
         function handleLogout() {
             currentUserRole = "";
             document.getElementById('mainDashboard').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
         }
 
-        // --- ট্যাব পরিবর্তনের লজিক ---
         function switchTab(tabName) {
             const tabAdd = document.getElementById('tabAdd');
             const tabDelete = document.getElementById('tabDelete');
@@ -173,7 +169,6 @@
             }
         }
 
-        // ১. অটো তারিখ ও সময়সহ ফায়ারবেসে আবেদন যুক্ত করা
         function addApplication() {
             const inputField = document.getElementById('appNumberInput');
             const appNumStr = inputField.value.trim();
@@ -199,7 +194,6 @@
             });
         }
 
-        // ২. আবেদন নম্বর ডাটাবেজ থেকে সম্পূর্ণ ডিলিট করার ফাংশন
         function deleteApplication(docId, appNumber) {
             if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? সম্পূর্ণ ডিলিট করা হবে।")) {
                 collectionRef.doc(docId).delete().then(() => {
@@ -209,7 +203,6 @@
             }
         }
 
-        // তারিখ ও সময় দেখানোর ফরম্যাট
         function formatDate(msTimestamp) {
             if (!msTimestamp) return "অজানা সময়";
             const date = new Date(msTimestamp);
@@ -228,7 +221,6 @@
             return `${day}-${month}-${year} (${formattedHours}:${minutes} ${ampm})`;
         }
 
-        // ৩. রিয়েল-টাইম সার্চ ফাংশন (তারিখ-সময়সহ)
         function searchApplication() {
             const queryStr = document.getElementById('searchNumberInput').value.trim();
             const resultArea = document.getElementById('searchResultArea');
@@ -265,7 +257,7 @@
             });
         }
 
-        // ৪. রিয়েল-টাইম মাল্টি-ডিভাইস লিসেনার (সব ডিভাইসে স্বয়ংক্রিয়ভাবে সিঙ্ক হবে)
+        // রিয়েল-টাইম ডাটাবেজ লিসেনার (তালিকার ভেতরে এন্ট্রি সময় যুক্ত করা হয়েছে)
         function loadLiveDatabase() {
             collectionRef.orderBy('appNumber', 'asc').onSnapshot((snapshot) => {
                 const listContainer = document.getElementById('applicationList');
@@ -290,16 +282,18 @@
                     const isFirst = index === 1;
                     const cardBg = isFirst ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200';
                     const badgeBg = isFirst ? 'bg-amber-500 text-white' : 'bg-green-600 text-white';
+                    const timeString = formatDate(createdAt);
 
                     const cardHtml = `
                         <div class="flex items-center justify-between p-3 rounded-xl shadow-sm border ${cardBg} transition duration-150">
                             <div class="flex items-center space-x-3">
-                                <div class="w-7 h-7 rounded-full ${badgeBg} flex items-center justify-center font-bold text-xs">
+                                <div class="w-7 h-7 rounded-full ${badgeBg} flex items-center justify-center font-bold text-xs shrink-0">
                                     ${index}
                                 </div>
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${appNumber}</div>
-                                    ${isFirst ? `<span class="text-[11px] font-semibold text-amber-700">পরবর্তী অনুমোদনযোগ্য আবেদন</span>` : `<span class="text-[11px] text-gray-400">অপেক্ষমাণ</span>`}
+                                    <div class="text-[11px] text-gray-500 font-medium">এন্ট্রি: ${timeString}</div>
+                                    ${isFirst ? `<span class="text-[11px] font-semibold text-amber-700 block mt-0.5">পরবর্তী অনুমোদনযোগ্য আবেদন</span>` : `<span class="text-[11px] text-gray-400">অপেক্ষমাণ</span>`}
                                 </div>
                             </div>
                         </div>
