@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>নামজারি সিরিয়াল ম্যানেজার</title>
+    <title>নামজারি ফাইল ম্যানেজমেন্ট ও ট্র্যাকিং</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -19,6 +19,13 @@
         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 w-full max-w-sm space-y-4">
             <h2 class="text-center font-bold text-green-700 text-xl">অফিস লগইন প্যানেল</h2>
             <p class="text-center text-xs text-gray-500">আপনার ইউজার আইডি ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
+            
+            <div class="bg-gray-50 p-2 rounded text-[11px] text-gray-600 border border-gray-200 space-y-0.5">
+                <div><b>এডমিন:</b> ID: <code class="text-red-600">admin</code> | Pass: <code class="text-red-600">admin123</code></div>
+                <div><b>অপারেটর:</b> ID: <code class="text-green-700">dataentry</code> | Pass: <code class="text-green-700">data123</code></div>
+                <div><b>সার্ভেয়ার:</b> ID: <code class="text-blue-600">surveyor</code> | Pass: <code class="text-blue-600">sur123</code></div>
+            </div>
+
             <hr class="border-gray-200">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">ইউজার আইডি (User ID)</label>
@@ -34,11 +41,11 @@
 
     <!-- ২. মেইন ড্যাশবোর্ড -->
     <div id="mainDashboard" class="hidden">
-        <!-- হেডার এবং লগআউট বাটন -->
+        <!-- হেডার -->
         <header class="bg-green-700 text-white py-4 shadow-md px-4 flex justify-between items-center">
-            <h1 class="text-base font-bold sm:text-lg">নামজারি অনুমোদন সিরিয়াল ম্যানেজার</h1>
+            <h1 class="text-base font-bold sm:text-lg">নামজারি ফাইল ট্র্যাকিং সিস্টেম</h1>
             <div class="flex items-center space-x-2">
-                <span id="userRoleBadge" class="text-xs bg-white text-green-700 font-bold px-2 py-1 rounded"></span>
+                <span id="userRoleBadge" class="text-xs bg-white text-green-700 font-bold px-2 py-1 rounded uppercase"></span>
                 <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded font-bold transition">লগআউট</button>
             </div>
         </header>
@@ -46,48 +53,65 @@
         <!-- মেইন কনটেইনার -->
         <main class="max-w-md mx-auto p-4 space-y-4">
             
-            <!-- অপশন সিলেক্টর বাটন (ট্যাব সিস্টেম) -->
-            <div class="grid grid-cols-2 gap-2 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200">
-                <button id="tabAdd" onclick="switchTab('add')" class="py-2.5 text-sm font-bold rounded-lg text-white bg-green-700 transition">
-                    আবেদন যুক্ত করুন
+            <!-- রোল ভিত্তিক অপশন বাটন -->
+            <div id="tabMenu" class="grid grid-cols-3 gap-1 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200">
+                <button id="tabAdd" onclick="switchTab('add')" class="py-2 text-xs font-bold rounded-lg text-white bg-green-700 transition">
+                    অপারেটর এন্ট্রি
                 </button>
-                <button id="tabDelete" onclick="switchTab('delete')" class="py-2.5 text-sm font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition">
-                    আবেদন ডিলিট করুন
+                <button id="tabSurveyor" onclick="switchTab('surveyor')" class="py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                    সার্ভেয়ার বক্স
+                </button>
+                <button id="tabReport" onclick="switchTab('report')" class="py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                    এডমিন রিপোর্ট
                 </button>
             </div>
 
-            <!-- সেকশন ১: নতুন আবেদন যুক্ত করার ফরম -->
+            <!-- ১. ডাটা এন্ট্রি অপারেটর প্যানেল (সার্ভেয়ারের কাছে পাঠানোর ফর্ম) -->
             <div id="addSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3">
-                <h2 class="text-center font-bold text-green-700 text-sm">নতুন আবেদন নম্বর যুক্ত করুন</h2>
-                <input type="number" id="appNumberInput" placeholder="আবেদন নম্বর (Application ID) লিখুন" 
+                <div class="text-center">
+                    <h2 class="font-bold text-green-700 text-sm">নতুন ফাইল সার্ভেয়ারের কাছে পাঠান</h2>
+                    <p class="text-[11px] text-gray-500">ফাইল নম্বর দিয়ে সাবমিট করলে সরাসরি সার্ভেয়ারের কাছে চলে যাবে</p>
+                </div>
+                <input type="number" id="appNumberInput" placeholder="আবেদন নম্বর (Application ID)" 
                     class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                <button onclick="addApplication()" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg hover:bg-green-800 transition active:scale-[0.98]">
-                    সিরিয়ালে যুক্ত করুন
+                <button onclick="addApplicationAndSendToSurveyor()" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg hover:bg-green-800 transition active:scale-[0.98]">
+                    ➔ সার্ভেয়ারের কাছে এন্ট্রি করুন
                 </button>
             </div>
 
-            <!-- সেকশন ২: সার্চ করে ডিলিট করার ফরম -->
-            <div id="deleteSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
-                <h2 class="text-center font-bold text-red-600 text-sm">আবেদন নম্বর সার্চ ও ডিলিট প্যানেল</h2>
-                <div class="relative">
-                    <input type="number" id="searchNumberInput" oninput="searchApplication()" placeholder="ডিলিট করার জন্য আবেদন নম্বরটি লিখুন" 
-                        class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+            <!-- ২. সার্ভেয়ার প্যানেল (সার্ভেয়ার এখানে তার পেন্ডিং ফাইল দেখবে ও আপনার কাছে পাঠাবে) -->
+            <div id="surveyorSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
+                <div class="text-center">
+                    <h2 class="font-bold text-blue-700 text-sm">সার্ভেয়ার ড্যাশবোর্ড</h2>
+                    <p class="text-[11px] text-gray-500">ফাইল যাচাই শেষে এডমিনের/আপনার অনুমোদনের জন্য পাঠান</p>
                 </div>
-                <!-- সার্চ রেজাল্ট দেখানোর জায়গা -->
-                <div id="searchResultArea" class="pt-2 space-y-2">
-                    <div class="text-center text-xs text-gray-400 py-2">নম্বর লিখলে রেজাল্ট এখানে দেখাবে</div>
+                <hr class="border-gray-200">
+                <div id="surveyorPendingList" class="space-y-2">
+                    <div class="text-center text-gray-400 py-4 text-xs">লোড হচ্ছে...</div>
                 </div>
             </div>
 
-            <!-- নিচের লাইভ তালিকা সেকশন -->
-            <div id="liveListSection">
-                <div class="flex items-center space-x-2 text-gray-700 font-bold mb-2 px-1 text-sm">
-                    <svg class="w-4 h-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <span>অনুমোদনের অপেক্ষমাণ তালিকা (ক্রমানুসারে)</span>
+            <!-- ৩. এডমিন ট্র্যাকিং ও মনিটরিং প্যানেল (আপনার জন্য) -->
+            <div id="reportSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4 hidden">
+                <h2 class="text-center font-bold text-purple-700 text-sm">সার্ভেয়ার ফাইল ট্র্যাকিং ও হিসেব</h2>
+                
+                <!-- সামারি স্ট্যাটাস -->
+                <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                    <div class="bg-amber-50 border border-amber-200 p-2 rounded-lg">
+                        <span class="block text-gray-500">সার্ভেয়ারের কাছে আটকে আছে</span>
+                        <b id="countSurveyorPending" class="text-amber-600 text-lg">0</b> টি
+                    </div>
+                    <div class="bg-green-50 border border-green-200 p-2 rounded-lg">
+                        <span class="block text-gray-500">আপনার অনুমোদনে এসেছে</span>
+                        <b id="countAdminReceived" class="text-green-600 text-lg">0</b> টি
+                    </div>
                 </div>
-                <hr class="border-gray-300 mb-3">
-                <div id="applicationList" class="space-y-2">
-                    <div class="text-center text-gray-500 py-6 text-sm">ডেটা লোড হচ্ছে...</div>
+
+                <hr class="border-gray-200">
+
+                <!-- ডিটেইলড ফাইল সময় গণনা -->
+                <div id="trackingDetailList" class="space-y-2">
+                    <div class="text-center text-gray-400 py-4 text-xs">ডাটা লোড হচ্ছে...</div>
                 </div>
             </div>
 
@@ -95,14 +119,14 @@
     </div>
 
     <script>
-        // --- রেডিমেড ব্যাকএন্ড ফায়ারবেস কনফিগারেশন ---
+        // 🛑 আপনার আসল ফায়ারবেস কনফিগারেশন বসান 🛑
         const firebaseConfig = {
-            apiKey: "AIzaSyAs7Kj9Lp_EXAMPLE_KEY_LIVE",
-            authDomain: "namjari-app.firebaseapp.com",
-            projectId: "namjari-app",
-            storageBucket: "namjari-app.appspot.com",
-            messagingSenderId: "1029384756",
-            appId: "1:1029384756:web:abc123def456"
+            apiKey: "YOUR_ACTUAL_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
 
         if (!firebase.apps.length) {
@@ -115,26 +139,32 @@
         let allApplications = []; 
 
         function handleLogin() {
-            const uid = document.getElementById('usernameInput').value.trim();
+            const uid = document.getElementById('usernameInput').value.trim().toLowerCase();
             const pass = document.getElementById('passwordInput').value.trim();
 
             if (uid === "admin" && pass === "admin123") {
                 currentUserRole = "admin";
             } else if (uid === "dataentry" && pass === "data123") {
                 currentUserRole = "dataentry";
+            } else if (uid === "surveyor" && pass === "sur123") {
+                currentUserRole = "surveyor";
             } else {
-                alert("ভুল আইডি অথবা পাসওয়ার্ড! আবার চেষ্টা করুন।");
+                alert("ভুল আইডি অথবা পাসওয়ার্ড!");
                 return;
             }
 
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainDashboard').classList.remove('hidden');
-            document.getElementById('userRoleBadge').innerText = currentUserRole === "admin" ? "এডমিন" : "ডাটা এন্ট্রি";
+            document.getElementById('userRoleBadge').innerText = currentUserRole === "dataentry" ? "অপারেটর" : (currentUserRole === "surveyor" ? "সার্ভেয়ার" : "এডমিন");
             
             document.getElementById('usernameInput').value = "";
             document.getElementById('passwordInput').value = "";
 
-            switchTab('add');
+            // রোল অনুযায়ী ডিফল্ট ট্যাব ওপেন করা
+            if (currentUserRole === 'dataentry') switchTab('add');
+            else if (currentUserRole === 'surveyor') switchTab('surveyor');
+            else switchTab('report');
+
             loadLiveDatabase();
         }
 
@@ -145,165 +175,153 @@
         }
 
         function switchTab(tabName) {
-            const tabAdd = document.getElementById('tabAdd');
-            const tabDelete = document.getElementById('tabDelete');
-            const addSection = document.getElementById('addSection');
-            const deleteSection = document.getElementById('deleteSection');
-            const liveListSection = document.getElementById('liveListSection');
-
-            if (tabName === 'add') {
-                tabAdd.className = "py-2.5 text-sm font-bold rounded-lg text-white bg-green-700 transition";
-                tabDelete.className = "py-2.5 text-sm font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition";
-                addSection.classList.remove('hidden');
-                liveListSection.classList.remove('hidden');
-                deleteSection.classList.add('hidden');
-            } else {
-                tabDelete.className = "py-2.5 text-sm font-bold rounded-lg text-white bg-red-600 transition";
-                tabAdd.className = "py-2.5 text-sm font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition";
-                deleteSection.classList.remove('hidden');
-                addSection.classList.add('hidden');
-                liveListSection.classList.add('hidden');
+            const tabs = ['add', 'surveyor', 'report'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+                const sec = document.getElementById(`${t}Section`);
                 
-                document.getElementById('searchNumberInput').value = "";
-                document.getElementById('searchResultArea').innerHTML = `<div class="text-center text-xs text-gray-400 py-2">নম্বর লিখলে রেজাল্ট এখানে দেখাবে</div>`;
-            }
+                if (t === tabName) {
+                    btn.className = "py-2 text-xs font-bold rounded-lg text-white bg-green-700 transition";
+                    sec.classList.remove('hidden');
+                } else {
+                    btn.className = "py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition";
+                    sec.classList.add('hidden');
+                }
+            });
         }
 
-        function addApplication() {
+        // ১. ডাটা এন্ট্রি অপারেটর নতুন ফাইল সার্ভেয়ারের কাছে পাঠানোর সিস্টেম
+        function addApplicationAndSendToSurveyor() {
             const inputField = document.getElementById('appNumberInput');
             const appNumStr = inputField.value.trim();
 
             if (appNumStr === "") {
-                alert("অনুগ্রহ করে আবেদন নম্বর দিন।");
+                alert("অনুগ্রহ করে আবেদন নম্বরটি লিখুন।");
                 return;
             }
 
-            const appNumInt = parseInt(appNumStr, 10);
-            const currentTimestamp = Date.now(); 
+            const now = Date.now();
 
             collectionRef.add({
-                appNumber: appNumInt,
-                createdAt: currentTimestamp
+                appNumber: parseInt(appNumStr, 10),
+                status: "pending_surveyor", // সার্ভেয়ারের জন্য স্ট্যাটাস সেট করা হলো
+                dataEntryTime: now,
+                sentToSurveyorTime: now,
+                sentToAdminTime: null
             })
             .then(() => {
-                inputField.value = ""; 
-                inputField.blur(); 
+                inputField.value = "";
+                alert(`আবেদন নং: ${appNumStr} সফলভাবে সার্ভেয়ারের লিস্টে এন্ট্রি করা হয়েছে!`);
             })
-            .catch((error) => {
-                alert("ত্রুটি ঘটেছে: " + error.message);
+            .catch((err) => {
+                alert("ত্রুটি: " + err.message);
             });
         }
 
-        function deleteApplication(docId, appNumber) {
-            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? সম্পূর্ণ ডিলিট করা হবে।")) {
-                collectionRef.doc(docId).delete().then(() => {
-                    document.getElementById('searchNumberInput').value = "";
-                    document.getElementById('searchResultArea').innerHTML = `<div class="text-center text-xs text-green-600 font-bold py-2">✓ সফলভাবে ডিলিট করা হয়েছে!</div>`;
+        // ২. সার্ভেয়ার ফাইল চেক করে এডমিনের/আপনার কাছে পাঠানোর সিস্টেম
+        function forwardToAdmin(docId, appNumber) {
+            if(confirm(`আবেদন নং: ${appNumber} যাচাই সম্পন্ন হয়েছে? ফাইলটি এডমিনের কাছে পাঠাতে চান?`)) {
+                const now = Date.now();
+                collectionRef.doc(docId).update({
+                    status: "sent_to_admin",
+                    sentToAdminTime: now
+                }).then(() => {
+                    alert(`আবেদন নং: ${appNumber} এডমিনের ড্যাশবোর্ডে পাঠানো হলো!`);
                 });
             }
         }
 
+        // সময় হিসাব করার ফাংশন (কয়দিন ধরে সার্ভিস পেন্ডিং আছে)
+        function getPendingDuration(startTime, endTime) {
+            const end = endTime ? endTime : Date.now();
+            const diffMs = end - startTime;
+            
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            const remainingHours = hours % 24;
+
+            if (days > 0) {
+                return `${days} দিন ${remainingHours} ঘণ্টা`;
+            }
+            return `${hours} ঘণ্টা`;
+        }
+
         function formatDate(msTimestamp) {
-            if (!msTimestamp) return "অজানা সময়";
+            if (!msTimestamp) return "এখনো পাঠানো হয়নি";
             const date = new Date(msTimestamp);
-            
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            
-            let hours = date.getHours();
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            hours = hours % 12;
-            hours = hours ? hours : 12; 
-            const formattedHours = String(hours).padStart(2, '0');
-
-            return `${day}-${month}-${year} (${formattedHours}:${minutes} ${ampm})`;
+            return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} (${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')})`;
         }
 
-        function searchApplication() {
-            const queryStr = document.getElementById('searchNumberInput').value.trim();
-            const resultArea = document.getElementById('searchResultArea');
-            
-            if (queryStr === "") {
-                resultArea.innerHTML = `<div class="text-center text-xs text-gray-400 py-2">নম্বর লিখলে রেজাল্ট এখানে দেখাবে</div>`;
-                return;
-            }
-
-            const queryInt = parseInt(queryStr, 10);
-            const matchedApps = allApplications.filter(app => app.appNumber === queryInt);
-
-            if (matchedApps.length === 0) {
-                resultArea.innerHTML = `<div class="text-center text-xs text-red-500 font-bold py-2">⚠ এই নম্বরের কোনো আবেদন খুঁজে পাওয়া যায়নি!</div>`;
-                return;
-            }
-
-            resultArea.innerHTML = "";
-            matchedApps.forEach((app) => {
-                const timeString = formatDate(app.createdAt);
-
-                const cardHtml = `
-                    <div class="flex items-center justify-between p-3 rounded-lg shadow-sm border border-red-300 bg-red-50 transition duration-150">
-                        <div>
-                            <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${app.appNumber}</div>
-                            <div class="text-[11px] text-gray-500 font-medium">এন্ট্রি: ${timeString}</div>
-                        </div>
-                        <button onclick="deleteApplication('${app.id}', '${app.appNumber}')" class="text-red-600 hover:text-red-800 transition" title="ডিলিট করুন">
-                           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                        </button>
-                    </div>
-                `;
-                resultArea.insertAdjacentHTML('beforeend', cardHtml);
-            });
-        }
-
-        // রিয়েল-টাইম ডাটাবেজ লিসেনার (তালিকার ভেতরে এন্ট্রি সময় যুক্ত করা হয়েছে)
+        // লাইভ ডাটাবেজ লিসেনার
         function loadLiveDatabase() {
-            collectionRef.orderBy('appNumber', 'asc').onSnapshot((snapshot) => {
-                const listContainer = document.getElementById('applicationList');
-                listContainer.innerHTML = ""; 
+            collectionRef.orderBy('dataEntryTime', 'desc').onSnapshot((snapshot) => {
+                allApplications = [];
+                let surveyorPendingCount = 0;
+                let adminReceivedCount = 0;
+
+                const surveyorListArea = document.getElementById('surveyorPendingList');
+                const trackingListArea = document.getElementById('trackingDetailList');
                 
-                allApplications = []; 
+                surveyorListArea.innerHTML = "";
+                trackingListArea.innerHTML = "";
 
-                if (snapshot.empty) {
-                    listContainer.innerHTML = `<div class="text-center text-gray-500 bg-white py-6 rounded-xl shadow-sm border border-gray-200 text-xs">বর্তমানে কোনো আবেদনের কাগজ এন্ট্রি করা নেই।</div>`;
-                    return;
-                }
-
-                let index = 1;
                 snapshot.forEach((doc) => {
                     const data = doc.data();
-                    const docId = doc.id;
-                    const appNumber = data.appNumber;
-                    const createdAt = data.createdAt;
+                    data.id = doc.id;
+                    allApplications.push(data);
 
-                    allApplications.push({ id: docId, appNumber: appNumber, createdAt: createdAt });
+                    if (data.status === 'pending_surveyor') {
+                        surveyorPendingCount++;
+                    } else if (data.status === 'sent_to_admin') {
+                        adminReceivedCount++;
+                    }
 
-                    const isFirst = index === 1;
-                    const cardBg = isFirst ? 'bg-amber-50 border-amber-400' : 'bg-white border-gray-200';
-                    const badgeBg = isFirst ? 'bg-amber-500 text-white' : 'bg-green-600 text-white';
-                    const timeString = formatDate(createdAt);
-
-                    const cardHtml = `
-                        <div class="flex items-center justify-between p-3 rounded-xl shadow-sm border ${cardBg} transition duration-150">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-7 h-7 rounded-full ${badgeBg} flex items-center justify-center font-bold text-xs shrink-0">
-                                    ${index}
-                                </div>
+                    // ক) সার্ভেয়ার ড্যাশবোর্ডের আইটেম (যেগুলো এখনো সার্ভেয়ারের কাছে আছে)
+                    if (data.status === 'pending_surveyor') {
+                        const surHtml = `
+                            <div class="p-3 border border-blue-200 bg-blue-50 rounded-xl flex justify-between items-center shadow-sm">
                                 <div>
-                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${appNumber}</div>
-                                    <div class="text-[11px] text-gray-500 font-medium">এন্ট্রি: ${timeString}</div>
-                                    ${isFirst ? `<span class="text-[11px] font-semibold text-amber-700 block mt-0.5">পরবর্তী অনুমোদনযোগ্য আবেদন</span>` : `<span class="text-[11px] text-gray-400">অপেক্ষমাণ</span>`}
+                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
+                                    <div class="text-[10px] text-gray-500 font-medium">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
+                                </div>
+                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                                    এডমিনকে পাঠান
+                                </button>
+                            </div>
+                        `;
+                        surveyorListArea.insertAdjacentHTML('beforeend', surHtml);
+                    }
+
+                    // খ) এডমিনের ট্র্যাকিং লিস্ট (কে কয়দিন আটকে রাখল তা দেখা যাবে)
+                    const durationText = getPendingDuration(data.sentToSurveyorTime, data.sentToAdminTime);
+                    const isPendingWithSurveyor = data.status === 'pending_surveyor';
+
+                    const trackHtml = `
+                        <div class="p-3 rounded-xl border ${isPendingWithSurveyor ? 'bg-amber-50 border-amber-300' : 'bg-green-50 border-green-300'} text-xs space-y-1">
+                            <div class="flex justify-between items-center font-bold">
+                                <span class="text-gray-800">আবেদন নং: ${data.appNumber}</span>
+                                <span class="${isPendingWithSurveyor ? 'text-amber-700 bg-amber-100' : 'text-green-700 bg-green-100'} px-2 py-0.5 rounded text-[10px] border">
+                                    ${isPendingWithSurveyor ? 'সার্ভেয়ারের কাছে আছে' : 'আপনার কাছে পাঠানো হয়েছে'}
+                                </span>
+                            </div>
+                            <div class="text-gray-600 text-[11px] space-y-0.5 pt-1">
+                                <div>• অপারেটর পাঠাল: ${formatDate(data.sentToSurveyorTime)}</div>
+                                ${!isPendingWithSurveyor ? `<div>• আপনার কাছে আসলো: ${formatDate(data.sentToAdminTime)}</div>` : ''}
+                                <div class="font-bold ${isPendingWithSurveyor ? 'text-red-600' : 'text-gray-600'} mt-1">
+                                    ⏱ ${isPendingWithSurveyor ? 'সার্ভেয়ার আটকে রেখেছে:' : 'সার্ভেয়ার সময় নিয়েছে:'} ${durationText}
                                 </div>
                             </div>
                         </div>
                     `;
-                    listContainer.insertAdjacentHTML('beforeend', cardHtml);
-                    index++;
+                    trackingListArea.insertAdjacentHTML('beforeend', trackHtml);
                 });
 
-                if (!document.getElementById('deleteSection').classList.contains('hidden')) {
-                    searchApplication();
+                // আপডেট কাউন্ট
+                document.getElementById('countSurveyorPending').innerText = surveyorPendingCount;
+                document.getElementById('countAdminReceived').innerText = adminReceivedCount;
+                
+                if (surveyorPendingCount === 0) {
+                    surveyorListArea.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">বর্তমানে সার্ভেয়ারের কাছে কোনো ফাইল পেন্ডিং নেই।</div>`;
                 }
             });
         }
