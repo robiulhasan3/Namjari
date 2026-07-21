@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>নামজারি ফাইল ম্যানেজমেন্ট ও ট্র্যাকিং</title>
+    <title>নামজারি দুই-ধাপ ট্র্যাকিং সিস্টেম</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -43,7 +43,7 @@
     <div id="mainDashboard" class="hidden">
         <!-- হেডার -->
         <header class="bg-green-700 text-white py-4 shadow-md px-4 flex justify-between items-center">
-            <h1 class="text-base font-bold sm:text-lg">নামজারি ফাইল ট্র্যাকিং সিস্টেম</h1>
+            <h1 class="text-base font-bold sm:text-lg">নামজারি প্রসেস ট্র্যাকার</h1>
             <div class="flex items-center space-x-2">
                 <span id="userRoleBadge" class="text-xs bg-white text-green-700 font-bold px-2 py-1 rounded uppercase"></span>
                 <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded font-bold transition">লগআউট</button>
@@ -53,7 +53,7 @@
         <!-- মেইন কনটেইনার -->
         <main class="max-w-md mx-auto p-4 space-y-4">
             
-            <!-- রোল ভিত্তিক অপশন বাটন -->
+            <!-- রোল ভিত্তিক ট্যাব বাটন -->
             <div id="tabMenu" class="grid grid-cols-3 gap-1 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200">
                 <button id="tabAdd" onclick="switchTab('add')" class="py-2 text-xs font-bold rounded-lg text-white bg-green-700 transition">
                     অপারেটর এন্ট্রি
@@ -62,28 +62,46 @@
                     সার্ভেয়ার বক্স
                 </button>
                 <button id="tabReport" onclick="switchTab('report')" class="py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition">
-                    এডমিন রিপোর্ট
+                    এডমিন মনিটর
                 </button>
             </div>
 
-            <!-- ১. ডাটা এন্ট্রি অপারেটর প্যানেল (সার্ভেয়ারের কাছে পাঠানোর ফর্ম) -->
-            <div id="addSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3">
-                <div class="text-center">
-                    <h2 class="font-bold text-green-700 text-sm">নতুন ফাইল সার্ভেয়ারের কাছে পাঠান</h2>
-                    <p class="text-[11px] text-gray-500">ফাইল নম্বর দিয়ে সাবমিট করলে সরাসরি সার্ভেয়ারের কাছে চলে যাবে</p>
+            <!-- ১. ডাটা এন্ট্রি অপারেটর প্যানেল (২-ধাপ এন্ট্রি সিস্টেম) -->
+            <div id="addSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4">
+                
+                <!-- ধাপ ১: ফাইল রিসিভ করা -->
+                <div class="border border-green-200 bg-green-50/50 p-4 rounded-xl space-y-2">
+                    <h3 class="font-bold text-green-800 text-xs flex items-center space-x-1">
+                        <span>১ম ধাপ: অফিসে নতুন ফাইল রিসিভ এন্ট্রি</span>
+                    </h3>
+                    <input type="number" id="receiveAppInput" placeholder="রিসিভ করা ফাইল নম্বর লিখুন" 
+                        class="w-full px-3 py-2 border bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    <button onclick="receiveApplication()" class="w-full bg-green-700 text-white font-bold py-2 rounded-lg text-xs hover:bg-green-800 transition">
+                        ✓ ফাইল রিসিভ সেভ করুন
+                    </button>
                 </div>
-                <input type="number" id="appNumberInput" placeholder="আবেদন নম্বর (Application ID)" 
-                    class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                <button onclick="addApplicationAndSendToSurveyor()" class="w-full bg-green-700 text-white font-bold py-3 rounded-lg hover:bg-green-800 transition active:scale-[0.98]">
-                    ➔ সার্ভেয়ারের কাছে এন্ট্রি করুন
-                </button>
+
+                <hr class="border-gray-200">
+
+                <!-- ধাপ ২: সার্ভেয়ারের কাছে পাঠানো -->
+                <div class="border border-blue-200 bg-blue-50/50 p-4 rounded-xl space-y-2">
+                    <h3 class="font-bold text-blue-800 text-xs flex items-center space-x-1">
+                        <span>২য় ধাপ: সার্ভেয়ারের কাছে পাঠানো এন্ট্রি</span>
+                    </h3>
+                    <input type="number" id="sendSurveyorAppInput" placeholder="সার্ভেয়ারকে পাঠানো ফাইল নম্বর লিখুন" 
+                        class="w-full px-3 py-2 border bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    <button onclick="sendToSurveyor()" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg text-xs hover:bg-blue-700 transition">
+                        ➔ সার্ভেয়ারের কাছে এন্ট্রি কনফার্ম করুন
+                    </button>
+                </div>
+
             </div>
 
-            <!-- ২. সার্ভেয়ার প্যানেল (সার্ভেয়ার এখানে তার পেন্ডিং ফাইল দেখবে ও আপনার কাছে পাঠাবে) -->
+            <!-- ২. সার্ভেয়ার প্যানেল -->
             <div id="surveyorSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
                 <div class="text-center">
-                    <h2 class="font-bold text-blue-700 text-sm">সার্ভেয়ার ড্যাশবোর্ড</h2>
-                    <p class="text-[11px] text-gray-500">ফাইল যাচাই শেষে এডমিনের/আপনার অনুমোদনের জন্য পাঠান</p>
+                    <h2 class="font-bold text-blue-700 text-sm">সার্ভেয়ারের পেন্ডিং লিস্ট</h2>
+                    <p class="text-[11px] text-gray-500">যাচাই শেষ হলে এডমিনের অনুমোদনে পাঠ পাঠান</p>
                 </div>
                 <hr class="border-gray-200">
                 <div id="surveyorPendingList" class="space-y-2">
@@ -91,25 +109,29 @@
                 </div>
             </div>
 
-            <!-- ৩. এডমিন ট্র্যাকিং ও মনিটরিং প্যানেল (আপনার জন্য) -->
+            <!-- ৩. এডমিন সম্পূর্ণ ট্র্যাকিং প্যানেল (আপনার জন্য) -->
             <div id="reportSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4 hidden">
-                <h2 class="text-center font-bold text-purple-700 text-sm">সার্ভেয়ার ফাইল ট্র্যাকিং ও হিসেব</h2>
+                <h2 class="text-center font-bold text-purple-700 text-sm">সব ফাইলের লাইভ ট্র্যাকিং ও হিসেব</h2>
                 
-                <!-- সামারি স্ট্যাটাস -->
-                <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                <!-- ৩টি স্ট্যাটাস কাউন্টার -->
+                <div class="grid grid-cols-3 gap-1 text-center text-[10px]">
+                    <div class="bg-gray-100 border p-2 rounded-lg">
+                        <span class="block text-gray-500">অপারেটরে রিসিভড</span>
+                        <b id="countReceived" class="text-gray-700 text-base">0</b> টি
+                    </div>
                     <div class="bg-amber-50 border border-amber-200 p-2 rounded-lg">
-                        <span class="block text-gray-500">সার্ভেয়ারের কাছে আটকে আছে</span>
-                        <b id="countSurveyorPending" class="text-amber-600 text-lg">0</b> টি
+                        <span class="block text-gray-500">সার্ভেয়ারের কাছে</span>
+                        <b id="countSurveyor" class="text-amber-600 text-base">0</b> টি
                     </div>
                     <div class="bg-green-50 border border-green-200 p-2 rounded-lg">
-                        <span class="block text-gray-500">আপনার অনুমোদনে এসেছে</span>
-                        <b id="countAdminReceived" class="text-green-600 text-lg">0</b> টি
+                        <span class="block text-gray-500">এডমিনে এসেছে</span>
+                        <b id="countAdmin" class="text-green-600 text-base">0</b> টি
                     </div>
                 </div>
 
                 <hr class="border-gray-200">
 
-                <!-- ডিটেইলড ফাইল সময় গণনা -->
+                <!-- ডিটেইলড ফাইল হিস্ট্রি -->
                 <div id="trackingDetailList" class="space-y-2">
                     <div class="text-center text-gray-400 py-4 text-xs">ডাটা লোড হচ্ছে...</div>
                 </div>
@@ -160,7 +182,6 @@
             document.getElementById('usernameInput').value = "";
             document.getElementById('passwordInput').value = "";
 
-            // রোল অনুযায়ী ডিফল্ট ট্যাব ওপেন করা
             if (currentUserRole === 'dataentry') switchTab('add');
             else if (currentUserRole === 'surveyor') switchTab('surveyor');
             else switchTab('report');
@@ -190,49 +211,92 @@
             });
         }
 
-        // ১. ডাটা এন্ট্রি অপারেটর নতুন ফাইল সার্ভেয়ারের কাছে পাঠানোর সিস্টেম
-        function addApplicationAndSendToSurveyor() {
-            const inputField = document.getElementById('appNumberInput');
-            const appNumStr = inputField.value.trim();
+        // ধাপ ১: অপারেটর কেবল রিসিভ এন্ট্রি দিবে
+        function receiveApplication() {
+            const input = document.getElementById('receiveAppInput');
+            const appNumStr = input.value.trim();
 
-            if (appNumStr === "") {
-                alert("অনুগ্রহ করে আবেদন নম্বরটি লিখুন।");
+            if (!appNumStr) {
+                alert("ফাইল নম্বর লিখুন।");
                 return;
             }
 
+            const appNum = parseInt(appNumStr, 10);
             const now = Date.now();
 
-            collectionRef.add({
-                appNumber: parseInt(appNumStr, 10),
-                status: "pending_surveyor", // সার্ভেয়ারের জন্য স্ট্যাটাস সেট করা হলো
-                dataEntryTime: now,
-                sentToSurveyorTime: now,
-                sentToAdminTime: null
-            })
-            .then(() => {
-                inputField.value = "";
-                alert(`আবেদন নং: ${appNumStr} সফলভাবে সার্ভেয়ারের লিস্টে এন্ট্রি করা হয়েছে!`);
-            })
-            .catch((err) => {
-                alert("ত্রুটি: " + err.message);
+            // চেক করা ফাইলটি আগে রিসিভ করা হয়েছে কিনা
+            collectionRef.where("appNumber", "==", appNum).get().then(snapshot => {
+                if (!snapshot.empty) {
+                    alert("এই আবেদন নম্বরটি ইতিমধ্যে সিস্টেমে রিসিভ করা আছে!");
+                    return;
+                }
+
+                collectionRef.add({
+                    appNumber: appNum,
+                    status: "received_by_operator",
+                    receivedTime: now,
+                    sentToSurveyorTime: null,
+                    sentToAdminTime: null
+                }).then(() => {
+                    input.value = "";
+                    alert(`আবেদন নং: ${appNum} রিসিভ করা হয়েছে!`);
+                });
             });
         }
 
-        // ২. সার্ভেয়ার ফাইল চেক করে এডমিনের/আপনার কাছে পাঠানোর সিস্টেম
+        // ধাপ ২: অপারেটর ফাইল সার্ভেয়ারের কাছে পাঠালে এন্ট্রি দেবে
+        function sendToSurveyor() {
+            const input = document.getElementById('sendSurveyorAppInput');
+            const appNumStr = input.value.trim();
+
+            if (!appNumStr) {
+                alert("ফাইল নম্বর লিখুন।");
+                return;
+            }
+
+            const appNum = parseInt(appNumStr, 10);
+            const now = Date.now();
+
+            // আগে রিসিভ করা ফাইল খুঁজে বের করে সার্ভেয়ারে পাঠানো হবে
+            collectionRef.where("appNumber", "==", appNum).get().then(snapshot => {
+                if (snapshot.empty) {
+                    alert("ভুল নম্বর! ফাইলটি প্রথমে '১ম ধাপ (রিসিভ)' এন্ট্রি দিন, তারপর সার্ভেয়ারে পাঠান।");
+                    return;
+                }
+
+                let docId = snapshot.docs[0].id;
+                let data = snapshot.docs[0].data();
+
+                if (data.status !== "received_by_operator") {
+                    alert("এই ফাইলটি ইতিমধ্যেই সার্ভেয়ারের কাছে বা এডমিনের কাছে পাঠানো হয়ে গেছে!");
+                    return;
+                }
+
+                collectionRef.doc(docId).update({
+                    status: "pending_surveyor",
+                    sentToSurveyorTime: now
+                }).then(() => {
+                    input.value = "";
+                    alert(`আবেদন নং: ${appNum} সফলভাবে সার্ভেয়ারের অ্যাকাউন্টে এন্ট্রি করা হলো!`);
+                });
+            });
+        }
+
+        // ৩. সার্ভেয়ার ফাইল যাচাই শেষে এডমিনের কাছে পাঠাবে
         function forwardToAdmin(docId, appNumber) {
-            if(confirm(`আবেদন নং: ${appNumber} যাচাই সম্পন্ন হয়েছে? ফাইলটি এডমিনের কাছে পাঠাতে চান?`)) {
+            if(confirm(`আবেদন নং: ${appNumber} যাচাই সম্পন্ন হয়েছে? এডমিনের অনুমোদনের জন্য পাঠাতে চান?`)) {
                 const now = Date.now();
                 collectionRef.doc(docId).update({
                     status: "sent_to_admin",
                     sentToAdminTime: now
                 }).then(() => {
-                    alert(`আবেদন নং: ${appNumber} এডমিনের ড্যাশবোর্ডে পাঠানো হলো!`);
+                    alert(`আবেদন নং: ${appNumber} এডমিনের কাছে পাঠানো হলো!`);
                 });
             }
         }
 
-        // সময় হিসাব করার ফাংশন (কয়দিন ধরে সার্ভিস পেন্ডিং আছে)
-        function getPendingDuration(startTime, endTime) {
+        function getDuration(startTime, endTime) {
+            if (!startTime) return "N/A";
             const end = endTime ? endTime : Date.now();
             const diffMs = end - startTime;
             
@@ -240,24 +304,23 @@
             const days = Math.floor(hours / 24);
             const remainingHours = hours % 24;
 
-            if (days > 0) {
-                return `${days} দিন ${remainingHours} ঘণ্টা`;
-            }
+            if (days > 0) return `${days} দিন ${remainingHours} ঘণ্টা`;
             return `${hours} ঘণ্টা`;
         }
 
         function formatDate(msTimestamp) {
-            if (!msTimestamp) return "এখনো পাঠানো হয়নি";
+            if (!msTimestamp) return "এখনো সম্পন্ন হয়নি";
             const date = new Date(msTimestamp);
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} (${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')})`;
         }
 
-        // লাইভ ডাটাবেজ লিসেনার
+        // লাইভ ডাটাবেজ পর্যবেক্ষণ
         function loadLiveDatabase() {
-            collectionRef.orderBy('dataEntryTime', 'desc').onSnapshot((snapshot) => {
+            collectionRef.orderBy('receivedTime', 'desc').onSnapshot((snapshot) => {
                 allApplications = [];
-                let surveyorPendingCount = 0;
-                let adminReceivedCount = 0;
+                let countReceived = 0;
+                let countSurveyor = 0;
+                let countAdmin = 0;
 
                 const surveyorListArea = document.getElementById('surveyorPendingList');
                 const trackingListArea = document.getElementById('trackingDetailList');
@@ -270,21 +333,19 @@
                     data.id = doc.id;
                     allApplications.push(data);
 
-                    if (data.status === 'pending_surveyor') {
-                        surveyorPendingCount++;
-                    } else if (data.status === 'sent_to_admin') {
-                        adminReceivedCount++;
-                    }
+                    if (data.status === 'received_by_operator') countReceived++;
+                    else if (data.status === 'pending_surveyor') countSurveyor++;
+                    else if (data.status === 'sent_to_admin') countAdmin++;
 
-                    // ক) সার্ভেয়ার ড্যাশবোর্ডের আইটেম (যেগুলো এখনো সার্ভেয়ারের কাছে আছে)
+                    // সার্ভেয়ার দেখার লিস্ট
                     if (data.status === 'pending_surveyor') {
                         const surHtml = `
                             <div class="p-3 border border-blue-200 bg-blue-50 rounded-xl flex justify-between items-center shadow-sm">
                                 <div>
                                     <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                    <div class="text-[10px] text-gray-500 font-medium">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
+                                    <div class="text-[10px] text-gray-500">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
                                 </div>
-                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">
+                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition">
                                     এডমিনকে পাঠান
                                 </button>
                             </div>
@@ -292,23 +353,36 @@
                         surveyorListArea.insertAdjacentHTML('beforeend', surHtml);
                     }
 
-                    // খ) এডমিনের ট্র্যাকিং লিস্ট (কে কয়দিন আটকে রাখল তা দেখা যাবে)
-                    const durationText = getPendingDuration(data.sentToSurveyorTime, data.sentToAdminTime);
-                    const isPendingWithSurveyor = data.status === 'pending_surveyor';
+                    // এডমিন দেখার বিস্তারিত টাইম ট্র্যাকিং
+                    let statusBadge = "";
+                    let cardBg = "";
+
+                    if (data.status === 'received_by_operator') {
+                        statusBadge = `<span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-[10px]">অপারেটরে জমা আছে</span>`;
+                        cardBg = "bg-white border-gray-300";
+                    } else if (data.status === 'pending_surveyor') {
+                        statusBadge = `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px]">সার্ভেয়ারের কাছে পেন্ডিং</span>`;
+                        cardBg = "bg-amber-50 border-amber-300";
+                    } else {
+                        statusBadge = `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px]">এডমিনে অনুমোদনের অপেক্ষায়</span>`;
+                        cardBg = "bg-green-50 border-green-300";
+                    }
 
                     const trackHtml = `
-                        <div class="p-3 rounded-xl border ${isPendingWithSurveyor ? 'bg-amber-50 border-amber-300' : 'bg-green-50 border-green-300'} text-xs space-y-1">
+                        <div class="p-3 rounded-xl border ${cardBg} text-xs space-y-1">
                             <div class="flex justify-between items-center font-bold">
                                 <span class="text-gray-800">আবেদন নং: ${data.appNumber}</span>
-                                <span class="${isPendingWithSurveyor ? 'text-amber-700 bg-amber-100' : 'text-green-700 bg-green-100'} px-2 py-0.5 rounded text-[10px] border">
-                                    ${isPendingWithSurveyor ? 'সার্ভেয়ারের কাছে আছে' : 'আপনার কাছে পাঠানো হয়েছে'}
-                                </span>
+                                ${statusBadge}
                             </div>
                             <div class="text-gray-600 text-[11px] space-y-0.5 pt-1">
-                                <div>• অপারেটর পাঠাল: ${formatDate(data.sentToSurveyorTime)}</div>
-                                ${!isPendingWithSurveyor ? `<div>• আপনার কাছে আসলো: ${formatDate(data.sentToAdminTime)}</div>` : ''}
-                                <div class="font-bold ${isPendingWithSurveyor ? 'text-red-600' : 'text-gray-600'} mt-1">
-                                    ⏱ ${isPendingWithSurveyor ? 'সার্ভেয়ার আটকে রেখেছে:' : 'সার্ভেয়ার সময় নিয়েছে:'} ${durationText}
+                                <div>• ১. ফাইল রিসিভ টাইম: ${formatDate(data.receivedTime)}</div>
+                                <div>• ২. সার্ভেয়ারে পাঠানো টাইম: ${formatDate(data.sentToSurveyorTime)}</div>
+                                ${data.sentToAdminTime ? `<div>• ৩. এডমিনে পৌঁছানোর টাইম: ${formatDate(data.sentToAdminTime)}</div>` : ''}
+                                
+                                <div class="font-bold text-gray-700 pt-1 border-t border-gray-200 mt-1">
+                                    ${data.status === 'pending_surveyor' ? `<span class="text-red-600">⏱ সার্ভেয়ার ঝুলিয়ে রেখেছে: ${getDuration(data.sentToSurveyorTime)}</span>` : ''}
+                                    ${data.status === 'received_by_operator' ? `<span class="text-gray-500">⏱ অপারেটরের টেবিল সময়: ${getDuration(data.receivedTime)}</span>` : ''}
+                                    ${data.status === 'sent_to_admin' ? `<span class="text-green-700">✓ সার্ভেয়ার সময় নিয়েছিল: ${getDuration(data.sentToSurveyorTime, data.sentToAdminTime)}</span>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -317,10 +391,11 @@
                 });
 
                 // আপডেট কাউন্ট
-                document.getElementById('countSurveyorPending').innerText = surveyorPendingCount;
-                document.getElementById('countAdminReceived').innerText = adminReceivedCount;
+                document.getElementById('countReceived').innerText = countReceived;
+                document.getElementById('countSurveyor').innerText = countSurveyor;
+                document.getElementById('countAdmin').innerText = countAdmin;
                 
-                if (surveyorPendingCount === 0) {
+                if (countSurveyor === 0) {
                     surveyorListArea.innerHTML = `<div class="text-center text-xs text-gray-400 py-6">বর্তমানে সার্ভেয়ারের কাছে কোনো ফাইল পেন্ডিং নেই।</div>`;
                 }
             });
