@@ -53,22 +53,9 @@
         <!-- মেইন কনটেইনার -->
         <main class="max-w-md mx-auto p-4 space-y-4">
             
-            <!-- রোল ভিত্তিক ট্যাব মেনু -->
-            <div id="tabMenu" class="grid grid-cols-3 gap-1 bg-white p-1.5 rounded-xl shadow-sm border border-gray-200">
-                <button id="tabAdd" onclick="switchTab('add')" class="py-2 text-xs font-bold rounded-lg text-white bg-green-700 transition">
-                    অপারেটর
-                </button>
-                <button id="tabSurveyor" onclick="switchTab('surveyor')" class="py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition">
-                    সার্ভেয়ার
-                </button>
-                <button id="tabReport" onclick="switchTab('report')" class="py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition">
-                    এডমিন
-                </button>
-            </div>
-
             <!-- ১. ডাটা এন্ট্রি অপারেটর ড্যাশবোর্ড -->
-            <div id="addSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4">
-                
+            <div id="addSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4 hidden">
+                <h2 class="text-sm font-bold text-green-800 border-b pb-2">অপারেটর ড্যাশবোর্ড</h2>
                 <div class="border border-green-200 bg-green-50/50 p-4 rounded-xl space-y-2">
                     <h3 class="font-bold text-green-800 text-xs">১ম ধাপ: নতুন ফাইল রিসিভ এন্ট্রি করুন</h3>
                     <div class="flex space-x-2">
@@ -103,8 +90,9 @@
 
             <!-- ২. সার্ভেয়ার ড্যাশবোর্ড -->
             <div id="surveyorSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-3 hidden">
-                <div class="flex justify-between items-center text-xs font-bold text-blue-900 border-b pb-2">
-                    <span>সার্ভেয়ারের কাছে পেন্ডিং ফাইলসমূহ:</span>
+                <h2 class="text-sm font-bold text-blue-900 border-b pb-2">সার্ভেয়ার ড্যাশবোর্ড</h2>
+                <div class="flex justify-between items-center text-xs font-bold text-blue-900">
+                    <span>আপনার কাছে পেন্ডিং ফাইলসমূহ:</span>
                     <span id="surveyorPendingCount" class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">0</span>
                 </div>
 
@@ -121,7 +109,7 @@
 
             <!-- ৩. এডমিন ট্র্যাকিং ও মনিটরিং ড্যাশবোর্ড -->
             <div id="reportSection" class="bg-white p-5 rounded-xl shadow-md border border-gray-200 space-y-4 hidden">
-                
+                <h2 class="text-sm font-bold text-red-700 border-b pb-2">এডমিন কন্ট্রোল প্যানেল</h2>
                 <div class="border border-green-300 bg-green-50/60 p-4 rounded-xl space-y-3">
                     <div class="flex justify-between items-center text-xs font-bold text-green-800">
                         <span>অনুমোদনের জন্য আপনার কাছে পেন্ডিং:</span>
@@ -226,14 +214,24 @@
         function showDashboard() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainDashboard').classList.remove('hidden');
-            document.getElementById('userRoleBadge').innerText = currentUserRole === "dataentry" ? "অপারেটর" : (currentUserRole === "surveyor" ? "সার্ভেয়ার" : "এডমিন");
             
+            document.getElementById('addSection').classList.add('hidden');
+            document.getElementById('surveyorSection').classList.add('hidden');
+            document.getElementById('reportSection').classList.add('hidden');
+
+            if (currentUserRole === "dataentry") {
+                document.getElementById('userRoleBadge').innerText = "অপারেটর";
+                document.getElementById('addSection').classList.remove('hidden');
+            } else if (currentUserRole === "surveyor") {
+                document.getElementById('userRoleBadge').innerText = "সার্ভেয়ার";
+                document.getElementById('surveyorSection').classList.remove('hidden');
+            } else if (currentUserRole === "admin") {
+                document.getElementById('userRoleBadge').innerText = "এডমিন";
+                document.getElementById('reportSection').classList.remove('hidden');
+            }
+
             document.getElementById('usernameInput').value = "";
             document.getElementById('passwordInput').value = "";
-
-            if (currentUserRole === 'dataentry') switchTab('add');
-            else if (currentUserRole === 'surveyor') switchTab('surveyor');
-            else switchTab('report');
 
             loadLiveDatabase();
         }
@@ -243,22 +241,6 @@
             localStorage.removeItem('namjari_user_role');
             document.getElementById('mainDashboard').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
-        }
-
-        function switchTab(tabName) {
-            const tabs = ['add', 'surveyor', 'report'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
-                const sec = document.getElementById(`${t}Section`);
-                
-                if (t === tabName) {
-                    btn.className = "py-2 text-xs font-bold rounded-lg text-white bg-green-700 transition";
-                    sec.classList.remove('hidden');
-                } else {
-                    btn.className = "py-2 text-xs font-bold rounded-lg text-gray-600 hover:bg-gray-100 transition";
-                    sec.classList.add('hidden');
-                }
-            });
         }
 
         function receiveApplication() {
@@ -318,7 +300,6 @@
             }
         }
 
-        // 🔥 এডমিন অনুমোদন দিলে সরাসরি ডিলিট/মুছে ফেলা হবে
         function approveByAdmin(docId, appNumber) {
             if(confirm(`আবেদন নং: ${appNumber} অনুমোদন করতে চান? অনুমোদিত হলে এই নম্বরটি সিস্টেম থেকে স্থায়ীভাবে ডিলিট হয়ে যাবে।`)) {
                 collectionRef.doc(docId).delete().then(() => {
@@ -330,6 +311,7 @@
             }
         }
 
+        // ⏱ সময় হিসাব করার কমন ফাংশন
         function getDuration(startTime, endTime) {
             if (!startTime) return "N/A";
             const end = endTime ? endTime : Date.now();
@@ -340,7 +322,12 @@
             const remainingHours = hours % 24;
 
             if (days > 0) return `${days} দিন ${remainingHours} ঘণ্টা`;
-            return `${hours} ঘণ্টা`;
+            if (hours > 0) return `${hours} ঘণ্টা`;
+            
+            const mins = Math.floor(diffMs / (1000 * 60));
+            if (mins > 0) return `${mins} মিনিট`;
+            
+            return `মাত্র কয়েক মুহূর্ত`;
         }
 
         function formatDate(msTimestamp) {
@@ -349,128 +336,135 @@
             return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()} (${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')})`;
         }
 
-        // 🔍 সবকটি ফিল্টারিং একসাথে কন্ট্রোল করার ফাংশন
         function filterLists() {
             // ১. অপারেটর ফিল্টারিং
-            const opQuery = document.getElementById('searchOperatorInput').value.trim();
-            const opListArea = document.getElementById('operatorPendingList');
-            opListArea.innerHTML = "";
-            const filteredOp = rawOperatorList.filter(i => i.appNumber.toString().includes(opQuery));
-            
-            if (filteredOp.length === 0) {
-                opListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং রিসিভড ফাইল পাওয়া যায়নি!</div>`;
-            } else {
-                filteredOp.forEach(data => {
-                    opListArea.insertAdjacentHTML('beforeend', `
-                        <div class="p-3 border border-blue-200 bg-blue-50/40 rounded-xl flex justify-between items-center shadow-sm">
-                            <div>
-                                <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                <div class="text-[10px] text-gray-500">রিসিভড: ${formatDate(data.receivedTime)}</div>
+            if (currentUserRole === 'dataentry') {
+                const opQuery = document.getElementById('searchOperatorInput').value.trim();
+                const opListArea = document.getElementById('operatorPendingList');
+                opListArea.innerHTML = "";
+                const filteredOp = rawOperatorList.filter(i => i.appNumber.toString().includes(opQuery));
+                
+                if (filteredOp.length === 0) {
+                    opListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং রিসিভড ফাইল পাওয়া যায়নি!</div>`;
+                } else {
+                    filteredOp.forEach(data => {
+                        opListArea.insertAdjacentHTML('beforeend', `
+                            <div class="p-3 border border-blue-200 bg-blue-50/40 rounded-xl flex justify-between items-center shadow-sm">
+                                <div>
+                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
+                                    <div class="text-[10px] text-gray-500">রিসিভড: ${formatDate(data.receivedTime)}</div>
+                                    <div class="text-[10px] font-bold text-amber-700 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.receivedTime)}</div>
+                                </div>
+                                <button onclick="sendToSurveyorFromList('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition cursor-pointer">
+                                    ➔ সার্ভেয়ারে পাঠান
+                                </button>
                             </div>
-                            <button onclick="sendToSurveyorFromList('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition cursor-pointer">
-                                ➔ সার্ভেয়ারে পাঠান
-                            </button>
-                        </div>
-                    `);
-                });
+                        `);
+                    });
+                }
             }
 
             // ২. সার্ভেয়ার ফিল্টারিং
-            const surQuery = document.getElementById('searchSurveyorInput').value.trim();
-            const surListArea = document.getElementById('surveyorPendingList');
-            surListArea.innerHTML = "";
-            const filteredSur = rawSurveyorList.filter(i => i.appNumber.toString().includes(surQuery));
+            if (currentUserRole === 'surveyor') {
+                const surQuery = document.getElementById('searchSurveyorInput').value.trim();
+                const surListArea = document.getElementById('surveyorPendingList');
+                surListArea.innerHTML = "";
+                const filteredSur = rawSurveyorList.filter(i => i.appNumber.toString().includes(surQuery));
 
-            if (filteredSur.length === 0) {
-                surListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং ফাইল পাওয়া যায়নি!</div>`;
-            } else {
-                filteredSur.forEach(data => {
-                    surListArea.insertAdjacentHTML('beforeend', `
-                        <div class="p-3 border border-blue-200 bg-blue-50 rounded-xl flex justify-between items-center shadow-sm">
-                            <div>
-                                <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                <div class="text-[10px] text-gray-500">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
+                if (filteredSur.length === 0) {
+                    surListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং ফাইল পাওয়া যায়নি!</div>`;
+                } else {
+                    filteredSur.forEach(data => {
+                        surListArea.insertAdjacentHTML('beforeend', `
+                            <div class="p-3 border border-blue-200 bg-blue-50 rounded-xl flex justify-between items-center shadow-sm">
+                                <div>
+                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
+                                    <div class="text-[10px] text-gray-500">অপারেটর পাঠিয়েছে: ${formatDate(data.sentToSurveyorTime)}</div>
+                                    <div class="text-[10px] font-bold text-red-600 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.sentToSurveyorTime)}</div>
+                                </div>
+                                <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer">
+                                    ➔ এডমিনকে পাঠান
+                                </button>
                             </div>
-                            <button onclick="forwardToAdmin('${data.id}', '${data.appNumber}')" class="bg-blue-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer">
-                                ➔ এডমিনকে পাঠান
-                            </button>
-                        </div>
-                    `);
-                });
+                        `);
+                    });
+                }
             }
 
-            // ৩. এডমিন ফিল্টারিং (নিজস্ব পেন্ডিং)
-            const admQuery = document.getElementById('searchAdminInput').value.trim();
-            const admListArea = document.getElementById('adminPendingList');
-            admListArea.innerHTML = "";
-            const filteredAdm = rawAdminList.filter(i => i.appNumber.toString().includes(admQuery));
+            // ৩. এডমিন ফিল্টারিং
+            if (currentUserRole === 'admin') {
+                const admQuery = document.getElementById('searchAdminInput').value.trim();
+                const admListArea = document.getElementById('adminPendingList');
+                admListArea.innerHTML = "";
+                const filteredAdm = rawAdminList.filter(i => i.appNumber.toString().includes(admQuery));
 
-            if (filteredAdm.length === 0) {
-                admListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং পেন্ডিং ফাইল পাওয়া যায়নি!</div>`;
-            } else {
-                filteredAdm.forEach(data => {
-                    admListArea.insertAdjacentHTML('beforeend', `
-                        <div class="p-3 border border-green-300 bg-white rounded-xl flex justify-between items-center shadow-sm">
-                            <div>
-                                <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
-                                <div class="text-[10px] text-gray-500">সার্ভেয়ার পাঠিয়েছে: ${formatDate(data.sentToAdminTime)}</div>
+                if (filteredAdm.length === 0) {
+                    admListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো ম্যাচিং পেন্ডিং ফাইল পাওয়া যায়নি!</div>`;
+                } else {
+                    filteredAdm.forEach(data => {
+                        admListArea.insertAdjacentHTML('beforeend', `
+                            <div class="p-3 border border-green-300 bg-white rounded-xl flex justify-between items-center shadow-sm">
+                                <div>
+                                    <div class="font-bold text-gray-800 text-sm">আবেদন নং: ${data.appNumber}</div>
+                                    <div class="text-[10px] text-gray-500">সার্ভেয়ার পাঠিয়েছে: ${formatDate(data.sentToAdminTime)}</div>
+                                    <div class="text-[10px] font-bold text-green-700 pt-0.5">⏱ আপনার কাছে পেন্ডিং: ${getDuration(data.sentToAdminTime)}</div>
+                                </div>
+                                <button onclick="approveByAdmin('${data.id}', '${data.appNumber}')" class="bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-800 transition cursor-pointer">
+                                    ✓ অনুমোদন ও ডিলিট
+                                </button>
                             </div>
-                            <button onclick="approveByAdmin('${data.id}', '${data.appNumber}')" class="bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-800 transition cursor-pointer">
-                                ✓ অনুমোদন ও ডিলিট
-                            </button>
-                        </div>
-                    `);
-                });
-            }
+                        `);
+                    });
+                }
 
-            // ৪. এডমিন ফিল্টারিং (সর্বমোট গ্লোবাল ট্র্যাকিং)
-            const globQuery = document.getElementById('searchGlobalInput').value.trim();
-            const globListArea = document.getElementById('trackingDetailList');
-            globListArea.innerHTML = "";
-            const filteredGlob = rawGlobalList.filter(i => i.appNumber.toString().includes(globQuery));
+                // এডমিন গ্লোবাল ট্র্যাকিং
+                const globQuery = document.getElementById('searchGlobalInput').value.trim();
+                const globListArea = document.getElementById('trackingDetailList');
+                globListArea.innerHTML = "";
+                const filteredGlob = rawGlobalList.filter(i => i.appNumber.toString().includes(globQuery));
 
-            if (filteredGlob.length === 0) {
-                globListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো রেকর্ড পাওয়া যায়নি!</div>`;
-            } else {
-                filteredGlob.forEach(data => {
-                    let statusBadge = "";
-                    let cardBg = "";
+                if (filteredGlob.length === 0) {
+                    globListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো রেকর্ড পাওয়া যায়নি!</div>`;
+                } else {
+                    filteredGlob.forEach(data => {
+                        let statusBadge = "";
+                        let cardBg = "";
 
-                    if (data.status === 'received_by_operator') {
-                        statusBadge = `<span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-[10px]">অপারেটরে পেন্ডিং</span>`;
-                        cardBg = "bg-white border-gray-300";
-                    } else if (data.status === 'pending_surveyor') {
-                        statusBadge = `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px]">সার্ভেয়ারে পেন্ডিং</span>`;
-                        cardBg = "bg-amber-50 border-amber-300";
-                    } else {
-                        statusBadge = `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px]">এডমিনে পেন্ডিং</span>`;
-                        cardBg = "bg-green-50 border-green-300";
-                    }
+                        if (data.status === 'received_by_operator') {
+                            statusBadge = `<span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-[10px]">অপারেটরে পেন্ডিং</span>`;
+                            cardBg = "bg-white border-gray-300";
+                        } else if (data.status === 'pending_surveyor') {
+                            statusBadge = `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px]">সার্ভেয়ারে পেন্ডিং</span>`;
+                            cardBg = "bg-amber-50 border-amber-300";
+                        } else {
+                            statusBadge = `<span class="bg-green-100 text-green-800 px-2 py-0.5 rounded text-[10px]">এডমিনে পেন্ডিং</span>`;
+                            cardBg = "bg-green-50 border-green-300";
+                        }
 
-                    globListArea.insertAdjacentHTML('beforeend', `
-                        <div class="p-3 rounded-xl border ${cardBg} text-xs space-y-1">
-                            <div class="flex justify-between items-center font-bold">
-                                <span class="text-gray-800">আবেদন নং: ${data.appNumber}</span>
-                                ${statusBadge}
-                            </div>
-                            <div class="text-gray-600 text-[11px] space-y-0.5 pt-1">
-                                <div>• ১. ফাইল রিসিভ: ${formatDate(data.receivedTime)}</div>
-                                ${data.sentToSurveyorTime ? `<div>• ২. সার্ভেয়ারে প্রেরিত: ${formatDate(data.sentToSurveyorTime)}</div>` : ''}
-                                ${data.sentToAdminTime ? `<div>• ৩. এডমিনে পৌঁছানোর সময়: ${formatDate(data.sentToAdminTime)}</div>` : ''}
-                                
-                                <div class="font-bold text-gray-700 pt-1 border-t border-gray-200 mt-1">
-                                    ${data.status === 'pending_surveyor' ? `<span class="text-red-600">⏱ সার্ভেয়ার ঝুলিয়ে রেখেছে: ${getDuration(data.sentToSurveyorTime)}</span>` : ''}
-                                    ${data.status === 'received_by_operator' ? `<span class="text-gray-500">⏱ অপারেটরের কাছে রয়েছে: ${getDuration(data.receivedTime)}</span>` : ''}
-                                    ${data.status === 'sent_to_admin' ? `<span class="text-green-700">⏱ এডমিনের কাছে রয়েছে: ${getDuration(data.sentToAdminTime)}</span>` : ''}
+                        globListArea.insertAdjacentHTML('beforeend', `
+                            <div class="p-3 rounded-xl border ${cardBg} text-xs space-y-1">
+                                <div class="flex justify-between items-center font-bold">
+                                    <span class="text-gray-800">আবেদন নং: ${data.appNumber}</span>
+                                    ${statusBadge}
+                                </div>
+                                <div class="text-gray-600 text-[11px] space-y-0.5 pt-1">
+                                    <div>• ১. ফাইল রিসিভ: ${formatDate(data.receivedTime)}</div>
+                                    ${data.sentToSurveyorTime ? `<div>• ২. সার্ভেয়ারে প্রেরিত: ${formatDate(data.sentToSurveyorTime)}</div>` : ''}
+                                    ${data.sentToAdminTime ? `<div>• ৩. এডমিনে পৌঁছানোর সময়: ${formatDate(data.sentToAdminTime)}</div>` : ''}
+                                    
+                                    <div class="font-bold text-gray-700 pt-1 border-t border-gray-200 mt-1">
+                                        ${data.status === 'pending_surveyor' ? `<span class="text-red-600">⏱ সার্ভেয়ার ঝুলিয়ে রেখেছে: ${getDuration(data.sentToSurveyorTime)}</span>` : ''}
+                                        ${data.status === 'received_by_operator' ? `<span class="text-gray-500">⏱ অপারেটরের কাছে রয়েছে: ${getDuration(data.receivedTime)}</span>` : ''}
+                                        ${data.status === 'sent_to_admin' ? `<span class="text-green-700">⏱ এডমিনের কাছে রয়েছে: ${getDuration(data.sentToAdminTime)}</span>` : ''}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `);
-                });
+                        `);
+                    });
+                }
             }
         }
 
-        // 🔄 লাইভ ডাটাবেজ আপডেট
         function loadLiveDatabase() {
             collectionRef.onSnapshot((snapshot) => {
                 rawOperatorList = [];
@@ -498,17 +492,15 @@
                     }
                 });
 
-                // সার্চ ফিল্টারিং আপডেট করা
                 filterLists();
 
-                // কাউন্ট আপডেট
-                document.getElementById('operatorPendingCount').innerText = rawOperatorList.length;
-                document.getElementById('surveyorPendingCount').innerText = rawSurveyorList.length;
-                document.getElementById('adminPendingCount').innerText = rawAdminList.length;
+                if(document.getElementById('operatorPendingCount')) document.getElementById('operatorPendingCount').innerText = rawOperatorList.length;
+                if(document.getElementById('surveyorPendingCount')) document.getElementById('surveyorPendingCount').innerText = rawSurveyorList.length;
+                if(document.getElementById('adminPendingCount')) document.getElementById('adminPendingCount').innerText = rawAdminList.length;
 
-                document.getElementById('countReceived').innerText = rawOperatorList.length;
-                document.getElementById('countSurveyor').innerText = rawSurveyorList.length;
-                document.getElementById('countAdmin').innerText = rawAdminList.length;
+                if(document.getElementById('countReceived')) document.getElementById('countReceived').innerText = rawOperatorList.length;
+                if(document.getElementById('countSurveyor')) document.getElementById('countSurveyor').innerText = rawSurveyorList.length;
+                if(document.getElementById('countAdmin')) document.getElementById('countAdmin').innerText = rawAdminList.length;
             });
         }
     </script>
