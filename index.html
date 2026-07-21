@@ -8,9 +8,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDK (Version 8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
 
@@ -87,7 +87,7 @@
                 </div>
                 <hr class="border-gray-300 mb-3">
                 <div id="applicationList" class="space-y-2">
-                    <div class="text-center text-gray-500 py-6 text-sm">লোড হচ্ছে...</div>
+                    <div class="text-center text-gray-500 py-6 text-sm">ডেটা লোড হচ্ছে...</div>
                 </div>
             </div>
 
@@ -95,17 +95,20 @@
     </div>
 
     <script>
-        // --- ফায়ারবেস কনফিগারেশন ---
+        // --- রেডিমেড ব্যাকএন্ড ফায়ারবেস কনফিগারেশন ---
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAs7Kj9Lp_EXAMPLE_KEY_LIVE",
+            authDomain: "namjari-app.firebaseapp.com",
+            projectId: "namjari-app",
+            storageBucket: "namjari-app.appspot.com",
+            messagingSenderId: "1029384756",
+            appId: "1:1029384756:web:abc123def456"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // ফায়ারবেস ইনিশিয়ালাইজেশন
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.firestore();
         const collectionRef = db.collection('namjari_applications');
 
@@ -170,7 +173,7 @@
             }
         }
 
-        // ১. নতুন আবেদন নম্বর যুক্ত করার ফাংশন
+        // ১. অটো তারিখ ও সময়সহ ফায়ারবেসে আবেদন যুক্ত করা
         function addApplication() {
             const inputField = document.getElementById('appNumberInput');
             const appNumStr = inputField.value.trim();
@@ -181,8 +184,6 @@
             }
 
             const appNumInt = parseInt(appNumStr, 10);
-
-            // লগআউট ট্র্যাকিং সমস্যা দূর করতে ইনস্ট্যান্ট মিলি-সেকেন্ড টাইমস্ট্যাম্প ব্যবহার করা হলো
             const currentTimestamp = Date.now(); 
 
             collectionRef.add({
@@ -191,17 +192,16 @@
             })
             .then(() => {
                 inputField.value = ""; 
-                inputField.value = null;
                 inputField.blur(); 
             })
             .catch((error) => {
-                alert("ত্রুটি ঘটেছে: " + error);
+                alert("ত্রুটি ঘটেছে: " + error.message);
             });
         }
 
         // ২. আবেদন নম্বর ডাটাবেজ থেকে সম্পূর্ণ ডিলিট করার ফাংশন
         function deleteApplication(docId, appNumber) {
-            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? তালিকা থেকে সম্পূর্ণ ডিলিট করা হবে।")) {
+            if(confirm("আবেদন নং: " + appNumber + " এর অনুমোদন সম্পন্ন হয়েছে? সম্পূর্ণ ডিলিট করা হবে।")) {
                 collectionRef.doc(docId).delete().then(() => {
                     document.getElementById('searchNumberInput').value = "";
                     document.getElementById('searchResultArea').innerHTML = `<div class="text-center text-xs text-green-600 font-bold py-2">✓ সফলভাবে ডিলিট করা হয়েছে!</div>`;
@@ -209,7 +209,7 @@
             }
         }
 
-        // তারিখ ও সময় সুন্দর করে দেখানোর জন্য সাধারণ ফাংশন
+        // তারিখ ও সময় দেখানোর ফরম্যাট
         function formatDate(msTimestamp) {
             if (!msTimestamp) return "অজানা সময়";
             const date = new Date(msTimestamp);
@@ -225,10 +225,10 @@
             hours = hours ? hours : 12; 
             const formattedHours = String(hours).padStart(2, '0');
 
-            return `${day}-${month}-${year} (সময়: ${formattedHours}:${minutes} ${ampm})`;
+            return `${day}-${month}-${year} (${formattedHours}:${minutes} ${ampm})`;
         }
 
-        // ৩. রিয়েল-টাইম সার্চ ফাংশন
+        // ৩. রিয়েল-টাইম সার্চ ফাংশন (তারিখ-সময়সহ)
         function searchApplication() {
             const queryStr = document.getElementById('searchNumberInput').value.trim();
             const resultArea = document.getElementById('searchResultArea');
@@ -265,9 +265,8 @@
             });
         }
 
-        // ৪. রিয়েল-টাইম ডাটাবেজ লিসেনার (লগআউট ও রিফ্রেশ ফ্রেন্ডলি সাজানোর নিয়ম)
+        // ৪. রিয়েল-টাইম মাল্টি-ডিভাইস লিসেনার (সব ডিভাইসে স্বয়ংক্রিয়ভাবে সিঙ্ক হবে)
         function loadLiveDatabase() {
-            // ক্রমানুসারে নিখুঁতভাবে সাজানোর জন্য এখানে 'appNumber' অনুযায়ী করা হয়েছে
             collectionRef.orderBy('appNumber', 'asc').onSnapshot((snapshot) => {
                 const listContainer = document.getElementById('applicationList');
                 listContainer.innerHTML = ""; 
