@@ -19,12 +19,6 @@
         <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200 w-full max-w-sm space-y-4">
             <h2 class="text-center font-bold text-green-700 text-xl">অফিস লগইন প্যানেল</h2>
             <p class="text-center text-xs text-gray-500">আপনার ইউজার আইডি ও পাসওয়ার্ড দিয়ে প্রবেশ করুন</p>
-            
-            <div class="bg-gray-50 p-2 rounded text-[11px] text-gray-600 border border-gray-200 space-y-0.5">
-                <div><b>এডমিন:</b> ID: <code class="text-red-600">admin</code> | Pass: <code class="text-red-600">admin123</code></div>
-                <div><b>অপারেটর:</b> ID: <code class="text-green-700">dataentry</code> | Pass: <code class="text-green-700">data123</code></div>
-                <div><b>সার্ভেয়ার:</b> ID: <code class="text-blue-600">surveyor</code> | Pass: <code class="text-blue-600">sur123</code></div>
-            </div>
 
             <hr class="border-gray-200">
             <div>
@@ -35,7 +29,7 @@
                 <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড (Password)</label>
                 <input type="password" id="passwordInput" placeholder="Password লিখুন" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600">
             </div>
-            <button onclick="handleLogin()" class="w-full bg-green-700 text-white font-bold py-2.5 rounded-lg hover:bg-green-800 transition">লগইন করুন</button>
+            <button onclick="handleLogin()" class="w-full bg-green-700 text-white font-bold py-2.5 rounded-lg hover:bg-green-800 transition cursor-pointer">লগইন করুন</button>
         </div>
     </div>
 
@@ -46,7 +40,7 @@
             <h1 class="text-base font-bold sm:text-lg">নামজারি প্রসেস ট্র্যাকার</h1>
             <div class="flex items-center space-x-2">
                 <span id="userRoleBadge" class="text-xs bg-white text-green-700 font-bold px-2 py-1 rounded uppercase"></span>
-                <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded font-bold transition">লগআউট</button>
+                <button onclick="handleLogout()" class="text-xs bg-red-600 hover:bg-red-700 px-2.5 py-1 rounded font-bold transition cursor-pointer">লগআউট</button>
             </div>
         </header>
 
@@ -61,7 +55,7 @@
                     <div class="flex space-x-2">
                         <input type="number" id="receiveAppInput" placeholder="আবেদন নম্বর লিখুন" 
                             class="w-full px-3 py-2 border bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                        <button onclick="receiveApplication()" class="bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-green-800 transition shrink-0">
+                        <button onclick="receiveApplication()" class="bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-green-800 transition shrink-0 cursor-pointer">
                             রিসিভ করুন
                         </button>
                     </div>
@@ -145,10 +139,22 @@
                     </div>
                 </div>
 
-                <!-- 🔍 এডমিন গ্লোবাল ট্র্যাকিং সার্চ ইনপুট -->
-                <div class="relative pt-2">
-                    <input type="number" id="searchGlobalInput" oninput="filterLists()" placeholder="🔍 যেকোনো স্ট্যাটাসের ফাইল সার্চ করুন..." 
-                        class="w-full px-3 py-2 border border-purple-300 bg-purple-50/30 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                <!-- 🎯 এডমিন রোল ফিল্টার ড্রপডাউন এবং সার্চ ইনপুট -->
+                <div class="space-y-2 pt-2">
+                    <div>
+                        <label class="block text-[11px] font-bold text-purple-800 mb-1">প্যানেল অনুসারে পেন্ডিং ফাইল দেখুন:</label>
+                        <select id="adminRoleFilter" onchange="filterLists()" class="w-full px-3 py-2 border border-purple-300 bg-purple-50/50 text-xs font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600">
+                            <option value="all">🔍 সকল ফাইল (সবগুলো)</option>
+                            <option value="dataentry">👤 অপারেটর প্যানেলে পেন্ডিং</option>
+                            <option value="surveyor">📐 সার্ভেয়ার প্যানেলে পেন্ডিং</option>
+                            <option value="admin">⭐ এডমিন প্যানেলে পেন্ডিং</option>
+                        </select>
+                    </div>
+
+                    <div class="relative">
+                        <input type="number" id="searchGlobalInput" oninput="filterLists()" placeholder="🔍 ফাইল নম্বর দিয়ে সার্চ করুন..." 
+                            class="w-full px-3 py-2 border border-purple-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    </div>
                 </div>
 
                 <div id="trackingDetailList" class="space-y-2 max-h-72 overflow-y-auto pr-1">
@@ -311,7 +317,6 @@
             }
         }
 
-        // ⏱ সময় হিসাব করার কমন ফাংশন
         function getDuration(startTime, endTime) {
             if (!startTime) return "N/A";
             const end = endTime ? endTime : Date.now();
@@ -418,10 +423,23 @@
                 }
 
                 // এডমিন গ্লোবাল ট্র্যাকিং
+                const roleFilterValue = document.getElementById('adminRoleFilter').value;
                 const globQuery = document.getElementById('searchGlobalInput').value.trim();
                 const globListArea = document.getElementById('trackingDetailList');
                 globListArea.innerHTML = "";
-                const filteredGlob = rawGlobalList.filter(i => i.appNumber.toString().includes(globQuery));
+
+                let filteredGlob = rawGlobalList.filter(i => {
+                    const matchesQuery = i.appNumber.toString().includes(globQuery);
+                    
+                    if (roleFilterValue === 'dataentry') {
+                        return matchesQuery && i.status === 'received_by_operator';
+                    } else if (roleFilterValue === 'surveyor') {
+                        return matchesQuery && i.status === 'pending_surveyor';
+                    } else if (roleFilterValue === 'admin') {
+                        return matchesQuery && i.status === 'sent_to_admin';
+                    }
+                    return matchesQuery;
+                });
 
                 if (filteredGlob.length === 0) {
                     globListArea.innerHTML = `<div class="text-center text-xs text-red-500 py-3 font-semibold">কোনো রেকর্ড পাওয়া যায়নি!</div>`;
